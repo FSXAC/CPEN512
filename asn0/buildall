@@ -1,0 +1,17 @@
+#!/bin/zsh
+
+make build
+make build-float
+make build-double
+make build-o
+make build-float-o
+make build-double-o
+make build-o2
+make build-float-o2
+make build-double-o2
+make build-o3
+make build-float-o3
+make build-double-o3
+make build-extra
+make build-float-extra
+make build-double-extra

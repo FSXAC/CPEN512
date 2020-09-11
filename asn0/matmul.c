@@ -36,14 +36,11 @@ void matmul(t* A, t* B, t* C, int N)
 	t sum;
 
 	for (row = 0; row < N; row++) {
-		printf("%d\n", row);
 		for (col = 0; col < N; col++) {
 			sum = 0;
 
 			for (i = 0; i < N; i++) {
-				t x = A[row * N + i];
-				t y = B[i * N + col];
-				sum += x * y;
+				sum += A[row * N + i] * B[i * N + col];
 			}
 
 			C[row * N + col] = sum;
@@ -100,7 +97,7 @@ int main(void) {
 	scanf("%d", &n);
 
 	clock_t time = matmul_benchmark(n);
-	printf("It took %lu clock ticks\n", time );
+	printf("It took %lu clock ticks (%.6fs)\n", time, (double) time / CLOCKS_PER_SEC );
 
 	return 0;
 }
