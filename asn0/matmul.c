@@ -3,7 +3,7 @@
 #include <time.h>
 
 // #define USE_INT
-#define USE_FLOAT
+// #define USE_FLOAT
 // #define USE_DOUBLE
 
 #if defined(USE_INT)
@@ -76,14 +76,18 @@ clock_t matmul_benchmark(int N)
 	B = mat_init(N);
 	C = mat_init(N);
 
+	#ifdef DEBUG_PRINT
 	print_mat(A, N);
 	print_mat(B, N);
+	#endif
 
 	clock_t start = clock();
 	matmul(A, B, C, N);
 	clock_t end = clock();
 
+	#ifdef DEBUG_PRINT
 	print_mat(C, N);
+	#endif
 
 	return end - start;
 }
@@ -93,7 +97,6 @@ int main(void) {
 
 	printf("Enter size (N): ");
 	scanf("%d", &n);
-	//n = 512;
 
 	clock_t time = matmul_benchmark(n);
 	printf("It took %lu clock ticks\n", time );
