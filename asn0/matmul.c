@@ -36,7 +36,8 @@ void matmul(t* A, t* B, t* C, int N)
 	t sum;
 
 	for (row = 0; row < N; row++) {
-		for (col = 0; col <= N; col++) {
+		printf("%d\n", row);
+		for (col = 0; col < N; col++) {
 			sum = 0;
 
 			for (i = 0; i < N; i++) {
