@@ -76,14 +76,14 @@ clock_t matmul_benchmark(int N)
 	B = mat_init(N);
 	C = mat_init(N);
 
-	// print_mat(A, N);
-	// print_mat(B, N);
+	print_mat(A, N);
+	print_mat(B, N);
 
 	clock_t start = clock();
 	matmul(A, B, C, N);
 	clock_t end = clock();
 
-	// print_mat(C, N);
+	print_mat(C, N);
 
 	return end - start;
 }
@@ -91,9 +91,9 @@ clock_t matmul_benchmark(int N)
 int main(void) {
 	int n;
 
-	// printf("Enter size (N): ");
-	// scanf("%d", &n);
-	n = 512;
+	printf("Enter size (N): ");
+	scanf("%d", &n);
+	//n = 512;
 
 	clock_t time = matmul_benchmark(n);
 	printf("It took %lu clock ticks\n", time );
