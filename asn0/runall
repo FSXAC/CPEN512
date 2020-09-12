@@ -19,3 +19,6 @@ echo "Running 12/18" && ./out/matmul_d_o4 >> results/matmul_d_o4.txt
 echo "Running 13/18" && ./out/matmul_e >> results/matmul_e.txt
 echo "Running 14/18" && ./out/matmul_f_e >> results/matmul_f_e.txt
 echo "Running 15/18" && ./out/matmul_d_e >> results/matmul_d_e.txt
+echo "Running 16/18" && ./out/matmul_custom >> results/matmul_custom.txt
+echo "Running 17/18" && ./out/matmul_f_custom >> results/matmul_f_custom.txt
+echo "Running 18/18" && ./out/matmul_d_custom >> results/matmul_d_custom.txt
