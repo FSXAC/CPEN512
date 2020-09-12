@@ -1,6 +1,6 @@
 CC=/usr/bin/gcc
 EXTRA_OPTS=-O3 -m64 -march=barcelona -mtune=barcelona
-CUSTOM_OPTS=-O3
+CUSTOM_OPTS=-Ofast -m64 -march=barcelona -mtune=barcelona -funsafe-loop-optimizations -ftree-vectorize -msse -msse2 -msse3 -mmmx -m3dnow
 N_SIZE=256
 M_TRIALS=1
 
