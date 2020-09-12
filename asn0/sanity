@@ -1,0 +1,10 @@
+#!/bin/zsh
+# This script tests that the multiplication logic is correct
+
+make test-int N_SIZE=3 &&  ./out/matmul_test_int
+echo 'Press any key to continue...'; read -k1 -s
+
+make test-float N_SIZE=3 && ./out/matmul_test_float
+echo 'Press any key to continue...'; read -k1 -s
+
+make test-double N_SIZE=3 && ./out/matmul_test_double

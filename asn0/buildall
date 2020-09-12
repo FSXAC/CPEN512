@@ -1,19 +1,28 @@
 #!/bin/zsh
 
+# Recompile all the variations of the matmul
+# program with different Nsize (specified by script param $1)
+
+if [ $# -eq 0 ]
+then
+    echo "Must supply 1 argument: N_SIZE = ?"
+    exit 1
+fi
+
 mkdir -p out
 
-make build
-make build-float
-make build-double
-make build-o
-make build-float-o
-make build-double-o
-make build-o2
-make build-float-o2
-make build-double-o2
-make build-o3
-make build-float-o3
-make build-double-o3
-make build-extra
-make build-float-extra
-make build-double-extra
+make build N_SIZE=$1
+make build-float N_SIZE=$1
+make build-double N_SIZE=$1
+make build-o N_SIZE=$1
+make build-float-o N_SIZE=$1
+make build-double-o N_SIZE=$1
+make build-o2 N_SIZE=$1
+make build-float-o2 N_SIZE=$1
+make build-double-o2 N_SIZE=$1
+make build-o3 N_SIZE=$1
+make build-float-o3 N_SIZE=$1
+make build-double-o3 N_SIZE=$1
+make build-extra N_SIZE=$1
+make build-float-extra N_SIZE=$1
+make build-double-extra N_SIZE=$1
