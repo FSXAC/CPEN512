@@ -117,7 +117,11 @@ clock_t matmul_benchmark()
 
 int main(void) {
 	printf("N_SIZE = %d\n", N_SIZE);
+	#if defined(__APPLE__)
 	printf("CLOCK_PER_SEC = %d\n", CLOCKS_PER_SEC);
+	#elif __linux__
+	printf("CLOCK_PER_SEC = %lu\n", CLOCKS_PER_SEC);
+	#endif
 	clock_t time = matmul_benchmark();
 	printf("\nCLOCK=%lu\n", time);
 
