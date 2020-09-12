@@ -1,0 +1,20 @@
+#!/bin/zsh
+# This script runs all the compiled versions with N=4096 and then write it 
+
+mkdir -p results
+
+echo 96 | ./out/matmul >> results/matmul.txt
+echo 96 | ./out/matmul_f >> results/matmul_f.txt
+echo 96 | ./out/matmul_d >> results/matmul_d.txt
+echo 96 | ./out/matmul_o1 >> results/matmul_o1.txt
+echo 96 | ./out/matmul_f_o1 >> results/matmul_f_o1.txt
+echo 96 | ./out/matmul_d_o1 >> results/matmul_d_o1.txt
+echo 96 | ./out/matmul_o2 >> results/matmul_o2.txt
+echo 96 | ./out/matmul_f_o2 >> results/matmul_f_o2.txt
+echo 96 | ./out/matmul_d_o3 >> results/matmul_d_o3.txt
+echo 96 | ./out/matmul_o3 >> results/matmul_o3.txt
+echo 96 | ./out/matmul_f_o3 >> results/matmul_f_o3.txt
+echo 96 | ./out/matmul_d_o4 >> results/matmul_d_o4.txt
+echo 96 | ./out/matmul_e >> results/matmul_e.txt
+echo 96 | ./out/matmul_f_e >> results/matmul_f_e.txt
+echo 96 | ./out/matmul_d_e >> results/matmul_d_e.txt

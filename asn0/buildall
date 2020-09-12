@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+mkdir -p out
+
 make build
 make build-float
 make build-double
