@@ -5,14 +5,20 @@
 // Print matrix in output (doesn't affect benchmark)
 #define PRINT_MATRIX
 
-// Which type to use for benchmark
+// Which type to use for benchmark by default
 #if !defined(USE_INT) && !defined(USE_FLOAT) && !defined(USE_DOUBLE)
 #define USE_INT
 #endif
 
+/* Which matrix multiplcation function to use */
+#if !defined(MATMUL_NAIVE) && !defined(MATMUL_TILED)
+// #define MATMUL_NAIVE
+#define MATMUL_TILED
+#endif
+
 // What is the size of matrix in benchmark
 #if !defined(N_SIZE)
-#define N_SIZE 4096
+#define N_SIZE 256
 #endif
 
 // How many times to run the benchmark to report an average value
@@ -35,7 +41,7 @@ typedef double t;
 #endif
 
 /* Helpers */
-#define MIN(x, y) x > y ? y : x						/* Returns the minimum of (x, y) */
+#define MIN(x, y) ((x > y) ? y : x)					/* Returns the minimum of (x, y) */
 #define GET(X, row, col) X[row * N_SIZE + col]		/* Refernces the element in 1D array using 2D coords */
 
 /* Initializes the memory of a matrix with random values
@@ -68,7 +74,6 @@ void matmul(t* A, t* B, t* C)
 		for (col = 0; col < N_SIZE; col++) {
 			sum = 0;
 			for (i = 0; i < N_SIZE; i++) {
-				sum += A[row * N_SIZE + i] * B[i * N_SIZE + col];
 				sum += GET(A, row, i) * GET(B, i, col);
 			}
 			GET(C, row, col) = sum;
@@ -158,7 +163,11 @@ clock_t matmul_benchmark()
 	#endif
 
 	clock_t start = clock();
+	#if defined(MATMUL_NAIVE)
 	matmul(A, B, C);
+	#elif defined(MATMUL_TILED)
+	matmul_tiled(A, B, C);
+	#endif
 	clock_t end = clock();
 
 	#ifdef PRINT_MATRIX
