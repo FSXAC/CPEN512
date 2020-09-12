@@ -2,20 +2,25 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Print matrix in output (doesn't affect benchmark)
 #define PRINT_MATRIX
 
+// Which type to use for benchmark
 #if !defined(USE_INT) && !defined(USE_FLOAT) && !defined(USE_DOUBLE)
 #define USE_INT
 #endif
 
+// What is the size of matrix in benchmark
 #if !defined(N_SIZE)
 #define N_SIZE 4096
 #endif
 
+// How many times to run the benchmark to report an average value
 #if !defined(N_TRIALS)
 #define N_TRIALS 1
 #endif
 
+// Typedef based on which benchmark defined
 #if defined(USE_INT)
 typedef int t;
 #elif defined(USE_FLOAT)
@@ -24,6 +29,18 @@ typedef float t;
 typedef double t;
 #endif
 
+/* Tile size for tiled matrix multiplication (override in gcc) theoretical optimal is 512 */
+#ifndef TILE_SIZE
+#define TILE_SIZE 512
+#endif
+
+/* Helpers */
+#define MIN(x, y) x > y ? y : x						/* Returns the minimum of (x, y) */
+#define GET(X, row, col) X[row * N_SIZE + col]		/* Refernces the element in 1D array using 2D coords */
+
+/* Initializes the memory of a matrix with random values
+ * Returns: the type pointer of the 2D matrix rolled into a 1D array
+ */
 t* mat_init (void) {
 	int idx = 0;
 	t* matrix = (t*)malloc(sizeof(t) * N_SIZE * N_SIZE);
@@ -40,6 +57,8 @@ t* mat_init (void) {
 	return matrix;
 }
 
+/* Naive/triple-loop matrix multiplication
+ */
 void matmul(t* A, t* B, t* C)
 {
 	int row, col, i;
@@ -50,9 +69,43 @@ void matmul(t* A, t* B, t* C)
 			sum = 0;
 			for (i = 0; i < N_SIZE; i++) {
 				sum += A[row * N_SIZE + i] * B[i * N_SIZE + col];
+				sum += GET(A, row, i) * GET(B, i, col);
 			}
-			
-			C[row * N_SIZE + col] = sum;
+			GET(C, row, col) = sum;
+		}
+	}
+}
+
+/* Tiled matrix multiplication
+ */
+void matmul_tiled(t* A, t* B, t* C)
+{
+	int I, J, K;
+	int i, j, k;
+	t sum;
+
+	// Stride by tile
+	for (I = 0; I < N_SIZE; I += TILE_SIZE)
+	{
+		for (J = 0; J < N_SIZE; J += TILE_SIZE)
+		{
+			for (K = 0; K < N_SIZE; K += TILE_SIZE)
+			{
+
+				// Calculate the inner products for each tile
+				for (i = I; i < MIN(I + TILE_SIZE, N_SIZE); i++)
+				{
+					for (j = J; j < MIN(J + TILE_SIZE, N_SIZE); j++)
+					{
+						sum = 0;
+						for (k = K; k < MIN(k + TILE_SIZE, N_SIZE); k++)
+						{
+							sum += GET(A, i, k) * GET(B, k, j);
+						}
+						GET(C, i, j) = sum;
+					}
+				}
+			}
 		}
 	}
 }

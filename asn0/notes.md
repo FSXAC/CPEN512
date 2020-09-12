@@ -31,3 +31,17 @@ So staying with the extra options, but modifying it:
 
 I think I’ll stop here.
 
+---
+
+### Tiling Matrix Multiplication
+
+I’m following the algorithm on [Wikipedia](https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm#Divide_and_conquer_algorithm).
+
+- Using `sysctl -a` on my Mac, I can see that my Macbook has a cache line size of 64, and cache size of 256. But system report gives 256 KB of L2 Cache per core.
+- On cpen512.ece, thisthe cache size is given as 512 KB per core. It also shows cache_alignment to be 64. 
+- So, that gives us 8192 cache lines.
+
+Ideally, the matrix should be divided into tiles of $\sqrt{M}$ by $\sqrt M$, where $M$ is size of the cache. 
+
+Using this idea, the idea tile size for the ECE computer is 512.
+
