@@ -1,0 +1,1 @@
+Enter size (N): It took 2549154554 clock ticks (2549.154554s)
