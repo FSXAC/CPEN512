@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+# This corresponds to plot 3 in step 3 of the assignment:
+#    - Runtime vs N, on log/log axes, N=256/512/1024/2048/4096 and custom flags
+
+echo "All of the data required for this plot already exists in"
+echo "  - results/plot1 and"
+echo "  - results/plot2"
