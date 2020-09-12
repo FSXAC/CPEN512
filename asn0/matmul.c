@@ -12,6 +12,10 @@
 #define N_SIZE 4096
 #endif
 
+#if !defined(N_TRIALS)
+#define N_TRIALS 1
+#endif
+
 #if defined(USE_INT)
 typedef int t;
 #elif defined(USE_FLOAT)
@@ -71,9 +75,9 @@ void print_mat(t* A)
 			}
 		}
 	} else {
-		printf("Matrix (first 5 elements): \n");
+		printf("Matrix (first 5 elements): ");
 
-		for (row = 0; row * N_SIZE + col < 5; row++, printf("\n")) {
+		for (row = 0; row * N_SIZE + col < 5; row++) {
 			for (col = 0; row * N_SIZE + col < 5; col++) {
 
 				#if defined(USE_INT)
@@ -83,7 +87,7 @@ void print_mat(t* A)
 				#endif
 			}
 		}
-		printf("... (truncated)\n");
+		printf(" ... (truncated)\n");
 	}
 }
 
@@ -122,8 +126,27 @@ int main(void) {
 	#elif __linux__
 	printf("CLOCK_PER_SEC = %lu\n", CLOCKS_PER_SEC);
 	#endif
-	clock_t time = matmul_benchmark();
-	printf("\nCLOCK=%lu\n", time);
+
+	if (N_TRIALS > 1) {
+		clock_t* times = malloc(sizeof(clock_t) * N_TRIALS);
+		
+		for (int i = 0; i < N_TRIALS; i++) {
+			times[i] = matmul_benchmark();
+			printf("CLOCK=%lu\n", times[i]);
+		}
+
+		// Compute average
+		clock_t sum = 0;
+		for (int i = 0; i < N_TRIALS; i++) {
+			sum += times[i];
+		}
+
+		printf("AVERAGE=%lu\n", sum / N_TRIALS);
+
+	} else {
+		clock_t time = matmul_benchmark();
+		printf("CLOCK=%lu\n", time);
+	}
 
 	return 0;
 }
