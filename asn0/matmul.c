@@ -93,11 +93,12 @@ clock_t matmul_benchmark(int N)
 int main(void) {
 	int n;
 
-	printf("Enter size (N): ");
+	// printf("Enter size (N): ");
 	scanf("%d", &n);
 
 	clock_t time = matmul_benchmark(n);
-	printf("It took %lu clock ticks (%.6fs)\n", time, (double) time / CLOCKS_PER_SEC );
+	// printf("It took %lu clock ticks (%.6fs)\n", time, (double) time / CLOCKS_PER_SEC );
+	printf("%.8f\n", (double) time / CLOCKS_PER_SEC );
 
 	return 0;
 }
