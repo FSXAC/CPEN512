@@ -4,4 +4,4 @@
 #    - Runtime vs optimization settings for a size 4096 matrix
 
 # Run this script to build and generate results for N=4096
-./buildall 256 && ./runall "results/plot1"
+./buildall 4096 && ./runall "results/plot1"
