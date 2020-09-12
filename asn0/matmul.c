@@ -38,11 +38,10 @@ void matmul(t* A, t* B, t* C, int N)
 	for (row = 0; row < N; row++) {
 		for (col = 0; col < N; col++) {
 			sum = 0;
-
 			for (i = 0; i < N; i++) {
 				sum += A[row * N + i] * B[i * N + col];
 			}
-
+			
 			C[row * N + col] = sum;
 		}
 	}
@@ -86,6 +85,10 @@ clock_t matmul_benchmark(int N)
 	#ifdef DEBUG_PRINT
 	print_mat(C, N);
 	#endif
+
+	free(A);
+	free(B);
+	free(C);
 
 	return end - start;
 }
