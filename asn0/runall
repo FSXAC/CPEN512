@@ -1,24 +1,30 @@
 #!/bin/zsh
 # This script runs all the compiled versions and then write results to file
 
-mkdir -p results
-rm results/*
+if [ $# -eq 0 ]
+then
+    echo "Must supply 1 argument: Path to results?"
+    exit 1
+fi
 
-echo "Running 1/18" && ./out/matmul >> results/matmul.txt
-echo "Running 2/18" && ./out/matmul_f >> results/matmul_f.txt
-echo "Running 3/18" && ./out/matmul_d >> results/matmul_d.txt
-echo "Running 4/18" && ./out/matmul_o1 >> results/matmul_o1.txt
-echo "Running 5/18" && ./out/matmul_f_o1 >> results/matmul_f_o1.txt
-echo "Running 6/18" && ./out/matmul_d_o1 >> results/matmul_d_o1.txt
-echo "Running 7/18" && ./out/matmul_o2 >> results/matmul_o2.txt
-echo "Running 8/18" && ./out/matmul_f_o2 >> results/matmul_f_o2.txt
-echo "Running 9/18" && ./out/matmul_d_o3 >> results/matmul_d_o3.txt
-echo "Running 10/18" && ./out/matmul_o3 >> results/matmul_o3.txt
-echo "Running 11/18" && ./out/matmul_f_o3 >> results/matmul_f_o3.txt
-echo "Running 12/18" && ./out/matmul_d_o4 >> results/matmul_d_o4.txt
-echo "Running 13/18" && ./out/matmul_e >> results/matmul_e.txt
-echo "Running 14/18" && ./out/matmul_f_e >> results/matmul_f_e.txt
-echo "Running 15/18" && ./out/matmul_d_e >> results/matmul_d_e.txt
-echo "Running 16/18" && ./out/matmul_custom >> results/matmul_custom.txt
-echo "Running 17/18" && ./out/matmul_f_custom >> results/matmul_f_custom.txt
-echo "Running 18/18" && ./out/matmul_d_custom >> results/matmul_d_custom.txt
+mkdir -p $1
+rm $1/*
+
+echo "Running 1/18" && ./out/matmul >> $1/matmul.txt
+echo "Running 2/18" && ./out/matmul_f >> $1/matmul_f.txt
+echo "Running 3/18" && ./out/matmul_d >> $1/matmul_d.txt
+echo "Running 4/18" && ./out/matmul_o1 >> $1/matmul_o1.txt
+echo "Running 5/18" && ./out/matmul_f_o1 >> $1/matmul_f_o1.txt
+echo "Running 6/18" && ./out/matmul_d_o1 >> $1/matmul_d_o1.txt
+echo "Running 7/18" && ./out/matmul_o2 >> $1/matmul_o2.txt
+echo "Running 8/18" && ./out/matmul_f_o2 >> $1/matmul_f_o2.txt
+echo "Running 9/18" && ./out/matmul_d_o3 >> $1/matmul_d_o3.txt
+echo "Running 10/18" && ./out/matmul_o3 >> $1/matmul_o3.txt
+echo "Running 11/18" && ./out/matmul_f_o3 >> $1/matmul_f_o3.txt
+echo "Running 12/18" && ./out/matmul_d_o4 >> $1/matmul_d_o4.txt
+echo "Running 13/18" && ./out/matmul_e >> $1/matmul_e.txt
+echo "Running 14/18" && ./out/matmul_f_e >> $1/matmul_f_e.txt
+echo "Running 15/18" && ./out/matmul_d_e >> $1/matmul_d_e.txt
+echo "Running 16/18" && ./out/matmul_custom >> $1/matmul_custom.txt
+echo "Running 17/18" && ./out/matmul_f_custom >> $1/matmul_f_custom.txt
+echo "Running 18/18" && ./out/matmul_d_custom >> $1/matmul_d_custom.txt

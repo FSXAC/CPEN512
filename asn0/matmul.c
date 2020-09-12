@@ -120,6 +120,12 @@ clock_t matmul_benchmark()
 }
 
 int main(void) {
+	if (N_SIZE > 4096)
+	{
+		printf("N larger than 4096 not supported.\n");
+		return 1;
+	}
+
 	printf("N_SIZE = %d\n", N_SIZE);
 	#if defined(__APPLE__)
 	printf("CLOCK_PER_SEC = %d\n", CLOCKS_PER_SEC);

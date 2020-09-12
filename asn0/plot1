@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+# This corresponds to plot 1 in step 3 of the assignment:
+#    - Runtime vs optimization settings for a size 4096 matrix
+
+# Run this script to build and generate results for N=4096
+./buildall 256 && ./runall "results/plot1"

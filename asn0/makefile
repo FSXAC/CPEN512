@@ -61,5 +61,5 @@ build-double-custom: matmul.c
 	gcc -o out/matmul_d_custom matmul.c $(CUSTOM_OPTS) -D USE_INT -D N_SIZE=$(N_SIZE) -D N_TRIALS=$(N_TRIALS)
 
 clean:
-	rm -f out/*
-	rm -f results/*
+	rm -rf out/*
+	rm -rf results/*

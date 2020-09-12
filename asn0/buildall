@@ -26,3 +26,6 @@ make build-double-o3 N_SIZE=$1
 make build-extra N_SIZE=$1
 make build-float-extra N_SIZE=$1
 make build-double-extra N_SIZE=$1
+make build-custom N_SIZE=$1
+make build-float-custom N_SIZE=$1
+make build-double-custom N_SIZE=$1
