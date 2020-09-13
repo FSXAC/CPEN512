@@ -3,7 +3,7 @@
 
 ### Finding Custom Options
 
-I’ve set up the program to run -O3 and extra flags each for 200 trials.
+I’ve set up the program to run -O3 and extra flags each for 200 trials. and N=256
 
 For existing “extra” config, the average clock ticks is **17577**.
 
@@ -41,7 +41,5 @@ I’m following the algorithm on [Wikipedia](https://en.wikipedia.org/wiki/Matri
 - On cpen512.ece, thisthe cache size is given as 512 KB per core. It also shows cache_alignment to be 64. 
 - So, that gives us 8192 cache lines.
 
-Ideally, the matrix should be divided into tiles of $\sqrt{M}$ by $\sqrt M$, where $M$ is size of the cache. 
-
-Using this idea, the idea tile size for the ECE computer is 512.
+Ideally, the matrix should be divided into tiles of $\sqrt{M}$ by $\sqrt M$, where $M$ is size of the cache. Using this idea, the ideal tile size for the ECE computer is $\sqrt{2^{19}}$=724. 
 

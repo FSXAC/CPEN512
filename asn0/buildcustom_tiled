@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+# Recompile the variations with custom flags of the matmul (tiled algorithm)
+# program with different Nsize (specified by script param $1)
+
+if [ $# -eq 0 ]
+then
+    echo "Must supply 1 argument: N_SIZE = ?"
+    exit 1
+fi
+
+mkdir -p out
+
+make build-custom N_SIZE=$1 EXTRA_DEFINES="-D MATMUL_TILED"
+make build-float-custom N_SIZE=$1 EXTRA_DEFINES="-D MATMUL_TILED"
+make build-double-custom N_SIZE=$1 EXTRA_DEFINES="-D MATMUL_TILED"

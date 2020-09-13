@@ -1,9 +1,13 @@
 CC=/usr/bin/gcc
-DEFINES=-D N_SIZE=$(N_SIZE) -D N_TRIALS=$(N_TRIALS)
+
 EXTRA_OPTS=-O3 -m64 -march=barcelona -mtune=barcelona
 CUSTOM_OPTS=-Ofast -m64 -march=barcelona -mtune=barcelona -funsafe-loop-optimizations -ftree-vectorize -msse -msse2 -msse3 -mmmx -m3dnow
+
 N_SIZE=256
 N_TRIALS=1
+
+DEFINES=-D N_SIZE=$(N_SIZE) -D N_TRIALS=$(N_TRIALS)
+EXTRA_DEFINES=-D NONE
 
 # Test
 test-int: matmul.c

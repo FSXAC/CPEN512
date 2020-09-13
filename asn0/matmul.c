@@ -37,7 +37,7 @@ typedef double t;
 
 /* Tile size for tiled matrix multiplication (override in gcc) theoretical optimal is 512 */
 #ifndef TILE_SIZE
-#define TILE_SIZE 512
+#define TILE_SIZE 724
 #endif
 
 /* Helpers */
@@ -188,11 +188,16 @@ int main(void) {
 		return 1;
 	}
 
+
 	printf("N_SIZE = %d\n", N_SIZE);
 	#if defined(__APPLE__)
 	printf("CLOCK_PER_SEC = %d\n", CLOCKS_PER_SEC);
 	#elif __linux__
 	printf("CLOCK_PER_SEC = %lu\n", CLOCKS_PER_SEC);
+	#endif
+
+	#if defined(MATMUL_TILED)
+	printf("MATMUL_TILED\n");
 	#endif
 
 	if (N_TRIALS > 1) {

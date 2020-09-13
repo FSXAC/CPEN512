@@ -1,0 +1,15 @@
+#!/bin/zsh
+# This script runs all the compiled versions and then write results to file
+
+if [ $# -eq 0 ]
+then
+    echo "Must supply 1 argument: Path to results?"
+    exit 1
+fi
+
+mkdir -p $1
+rm $1/*
+
+echo "Running 1/3" && ./out/matmul_custom >> $1/matmul_custom.txt
+echo "Running 2/3" && ./out/matmul_f_custom >> $1/matmul_f_custom.txt
+echo "Running 3/3" && ./out/matmul_d_custom >> $1/matmul_d_custom.txt
