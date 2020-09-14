@@ -48,7 +48,7 @@ typedef double t;
  */
 t* mat_init (void) {
 	int idx = 0;
-	t* matrix = (t*)malloc(sizeof(t) * N_SIZE * N_SIZE);
+	t* matrix = malloc(sizeof(t) * N_SIZE * N_SIZE);
 
 	while (idx <  N_SIZE * N_SIZE)
 	{
@@ -64,7 +64,7 @@ t* mat_init (void) {
 
 t* mat_init_zero(void) {
 	int idx = 0;
-	t* matrix = (t*)malloc(sizeof(t) * N_SIZE * N_SIZE);
+	t* matrix = calloc(N_SIZE * N_SIZE, sizeof(t));
 	return matrix;
 }
 

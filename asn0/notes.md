@@ -43,3 +43,8 @@ I’m following the algorithm on [Wikipedia](https://en.wikipedia.org/wiki/Matri
 
 Ideally, the matrix should be divided into tiles of $\sqrt{M}$ by $\sqrt M$, where $M$ is size of the cache. Using this idea, the ideal tile size for the ECE computer is $\sqrt{2^{19}}$=724. 
 
+**NOTE**: I scrapped the above implementation and opted for the implementation described in Wolf and Lam’s paper:
+
+![image-20200914121049649](assets/image-20200914121049649.png)
+
+This seems to perform a lot better :D.
