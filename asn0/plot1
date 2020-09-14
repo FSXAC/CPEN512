@@ -4,4 +4,9 @@
 #    - Runtime vs optimization settings for a size 4096 matrix
 
 # Run this script to build and generate results for N=4096
-./buildall 4096 && ./runall "results/plot1"
+# ./buildall 4096 && ./runall "results/plot1"
+
+# Redo tests for custom flags
+echo "Running 16/18" && ./out/matmul_custom >> results/plot1/matmul_custom.txt
+echo "Running 17/18" && ./out/matmul_f_custom >> results/plot1/matmul_f_custom.txt
+echo "Running 18/18" && ./out/matmul_d_custom >> results/plot1/matmul_d_custom.txt

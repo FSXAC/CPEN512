@@ -73,15 +73,11 @@ t* mat_init_zero(void) {
 void matmul(t* A, t* B, t* C)
 {
 	int row, col, i;
-	t sum;
-
 	for (row = 0; row < N_SIZE; row++) {
 		for (col = 0; col < N_SIZE; col++) {
-			sum = 0;
 			for (i = 0; i < N_SIZE; i++) {
-				sum += GET(A, row, i) * GET(B, i, col);
+				GET(C, row, col) += GET(A, row, i) * GET(B, i, col);
 			}
-			GET(C, row, col) = sum;
 		}
 	}
 }
