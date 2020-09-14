@@ -190,7 +190,7 @@ int main(void) {
 		
 		for (int i = 0; i < N_TRIALS; i++) {
 			times[i] = matmul_benchmark();
-			printf("CLOCK=%lu\n", times[i]);
+			printf("CLOCK=%lu\t%.6f s\n", times[i], (double) times[i] / CLOCKS_PER_SEC);
 		}
 
 		// Compute average
