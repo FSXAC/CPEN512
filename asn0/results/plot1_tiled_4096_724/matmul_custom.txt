@@ -3,5 +3,5 @@ CLOCK_PER_SEC = 1000000
 MATMUL_TILED
 Matrix (first 5 elements):      3     6     7     5     3 ... (truncated)
 Matrix (first 5 elements):      2     5     5     1     9 ... (truncated)
-Matrix (first 5 elements):   9889 10287  9705  9228  9736 ... (truncated)
-CLOCK=8537997656
+Matrix (first 5 elements):  83508 83831 83409 82893 82259 ... (truncated)
+CLOCK=159526169	159.526169 s

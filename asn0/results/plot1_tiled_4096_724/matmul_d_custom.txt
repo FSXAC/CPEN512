@@ -1,7 +1,7 @@
 N_SIZE = 4096
 CLOCK_PER_SEC = 1000000
 MATMUL_TILED
-Matrix (first 5 elements):      3     6     7     5     3 ... (truncated)
-Matrix (first 5 elements):      2     5     5     1     9 ... (truncated)
-Matrix (first 5 elements):   9889 10287  9705  9228  9736 ... (truncated)
-CLOCK=8489016755
+Matrix (first 5 elements):   0.84  0.39  0.78  0.80  0.91 ... (truncated)
+Matrix (first 5 elements):   0.90  0.05  0.39  0.86  0.49 ... (truncated)
+Matrix (first 5 elements): 1041.131019.791023.341027.331028.34 ... (truncated)
+CLOCK=139810466	139.810466 s
