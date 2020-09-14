@@ -12,8 +12,7 @@
 
 /* Which matrix multiplcation function to use */
 #if !defined(MATMUL_NAIVE) && !defined(MATMUL_TILED)
-// #define MATMUL_NAIVE
-#define MATMUL_TILED
+#define MATMUL_NAIVE
 #endif
 
 // What is the size of matrix in benchmark
@@ -63,6 +62,12 @@ t* mat_init (void) {
 	return matrix;
 }
 
+t* mat_init_zero(void) {
+	int idx = 0;
+	t* matrix = (t*)malloc(sizeof(t) * N_SIZE * N_SIZE);
+	return matrix;
+}
+
 /* Naive/triple-loop matrix multiplication
  */
 void matmul(t* A, t* B, t* C)
@@ -85,29 +90,13 @@ void matmul(t* A, t* B, t* C)
  */
 void matmul_tiled(t* A, t* B, t* C)
 {
-	int I, J, K;
-	int i, j, k;
-	t sum;
-
-	// Stride by tile
-	for (I = 0; I < N_SIZE; I += TILE_SIZE)
-	{
-		for (J = 0; J < N_SIZE; J += TILE_SIZE)
-		{
-			for (K = 0; K < N_SIZE; K += TILE_SIZE)
-			{
-
-				// Calculate the inner products for each tile
-				for (i = I; i < MIN(I + TILE_SIZE, N_SIZE); i++)
-				{
-					for (j = J; j < MIN(J + TILE_SIZE, N_SIZE); j++)
-					{
-						sum = 0;
-						for (k = K; k < MIN(k + TILE_SIZE, N_SIZE); k++)
-						{
-							sum += GET(A, i, k) * GET(B, k, j);
-						}
-						GET(C, i, j) = sum;
+	int II2, II3, i1, i2, i3;
+	for (II2 = 0; II2 < N_SIZE; II2 += TILE_SIZE) {
+		for (II3 = 0; II3 < N_SIZE; II3 += TILE_SIZE) {
+			for (i1 = 0; i1 < N_SIZE; i1++) {
+				for (i2 = II2; i2 < MIN(II2 + TILE_SIZE, N_SIZE); i2++) {
+					for (i3 = II3; i3 < MIN(II3 + TILE_SIZE, N_SIZE); i3++) {
+						GET(C, i1, i3) += GET(A, i1, i2) * GET(B, i2, i3);
 					}
 				}
 			}
@@ -155,7 +144,7 @@ clock_t matmul_benchmark()
 	
 	A = mat_init();
 	B = mat_init();
-	C = mat_init();
+	C = mat_init_zero();
 
 	#ifdef PRINT_MATRIX
 	print_mat(A);
@@ -218,7 +207,7 @@ int main(void) {
 
 	} else {
 		clock_t time = matmul_benchmark();
-		printf("CLOCK=%lu\n", time);
+		printf("CLOCK=%lu\t%.6f s\n", time, (double) time / CLOCKS_PER_SEC);
 	}
 
 	return 0;
