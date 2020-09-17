@@ -1,7 +1,8 @@
 CC=/usr/bin/gcc
 
-EXTRA_OPTS=-O3 -m64 -march=barcelona -mtune=barcelona
-CUSTOM_OPTS=-Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-all-loops -ftree-loop-distribution -funswitch-loops
+ARCH_OPTS=-march=barcelona -mtune=barcelona
+EXTRA_OPTS=-O3 -m64 $(ARCH_OPTS)
+CUSTOM_OPTS=-Ofast -m64 $(ARCH_OPTS) -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-all-loops -ftree-loop-distribution -funswitch-loops
 
 N_SIZE=256
 N_TRIALS=1

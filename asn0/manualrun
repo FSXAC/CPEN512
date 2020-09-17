@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+make build-float-custom N_SIZE=1024 EXTRA_DEFINES="-D MATMUL_TILED"
+./out/matmul_f_custom
