@@ -82,7 +82,7 @@ void matmul(t* A, t* B, t* C)
 	}
 }
 
-/* Tiled matrix multiplication
+/* Manual optimization 1: Tiled matrix multiplication
  */
 void matmul_tiled(t* A, t* B, t* C)
 {
@@ -95,6 +95,23 @@ void matmul_tiled(t* A, t* B, t* C)
 						GET(C, i1, i3) += GET(A, i1, i2) * GET(B, i2, i3);
 					}
 				}
+			}
+		}
+	}
+}
+
+/* Manual optimization 2: manual unrolling (size 4)
+ */
+void matmul_do4(t* A, t* B, t* C)
+{
+	int row, col, i;
+	for (row = 0; row < N_SIZE; row++) {
+		for (col = 0; col < N_SIZE; col++) {
+			for (i = 0; i < N_SIZE; i += 4) {
+				GET(C, row, col) += GET(A, row, i) * GET(B, i, col);
+				GET(C, row, col) += GET(A, row, i + 1) * GET(B, i + 1, col);
+				GET(C, row, col) += GET(A, row, i + 2) * GET(B, i + 2, col);
+				GET(C, row, col) += GET(A, row, i + 3) * GET(B, i + 3, col);
 			}
 		}
 	}
@@ -152,6 +169,8 @@ clock_t matmul_benchmark()
 	matmul(A, B, C);
 	#elif defined(MATMUL_TILED)
 	matmul_tiled(A, B, C);
+	#elif defined(MATMUL_DO4)
+	matmul_do4(A, B, C);
 	#endif
 	clock_t end = clock();
 

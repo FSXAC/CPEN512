@@ -1,7 +1,0 @@
-#!/bin/zsh
-
-# This corresponds to plot 1 in step 5 of the assignment:
-#    - Runtime vs optimization settings for a size 4096 matrix
-
-# Run this script to build and generate results for N=4096
-./buildcustom_tiled 4096 && ./runcustom "results/plot1_tiled_4096_724"

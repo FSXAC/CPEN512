@@ -8,7 +8,7 @@
 # of N: N=256/512/1024/2048 -- we don't need to do 4096 again because we already did that in plot 1
 # and running N=4096 takes a really long time
 
-./buildall 256 && ./runall "results/plot2/256"
-./buildall 512 && ./runall "results/plot2/512"
-./buildall 1024 && ./runall "results/plot2/1024"
-./buildall 2048 && ./runall "results/plot2/2048"
+./buildall 256 && ./runall "results/plot2_`date +%s`/256"
+./buildall 512 && ./runall "results/plot2_`date +%s`/512"
+./buildall 1024 && ./runall "results/plot2_`date +%s`/1024"
+./buildall 2048 && ./runall "results/plot2_`date +%s`/2048"
