@@ -20,11 +20,6 @@
 #define N_SIZE 256
 #endif
 
-// How many times to run the benchmark to report an average value
-#if !defined(N_TRIALS)
-#define N_TRIALS 1
-#endif
-
 // Typedef based on which benchmark defined
 #if defined(USE_INT)
 typedef int t;
@@ -68,6 +63,8 @@ t* mat_init_zero(void) {
 	return matrix;
 }
 
+
+#if defined(MATMUL_NAIVE)
 /* Naive/triple-loop matrix multiplication
  */
 void matmul(t* A, t* B, t* C)
@@ -81,6 +78,9 @@ void matmul(t* A, t* B, t* C)
 		}
 	}
 }
+
+#elif defined(MATMUL_TILED)
+
 
 /* Manual optimization 1: Tiled matrix multiplication
  */
@@ -100,7 +100,25 @@ void matmul_tiled(t* A, t* B, t* C)
 	}
 }
 
-/* Manual optimization 2: manual unrolling (size 4)
+#elif defined(MATMUL_DO2)
+
+/* Manual optimization 2a: manual unrolling (size 2)
+ */
+void matmul_do2(t* A, t* B, t* C)
+{
+	int row, col, i;
+	for (row = 0; row < N_SIZE; row++) {
+		for (col = 0; col < N_SIZE; col++) {
+			for (i = 0; i < N_SIZE; i += 2) {
+				GET(C, row, col) += GET(A, row, i) * GET(B, i, col) + 
+									GET(A, row, i + 1) * GET(B, i + 1, col);
+			}
+		}
+	}
+}
+
+#elif defined(MATMUL_DO4)
+/* Manual optimization 2b: manual unrolling (size 4)
  */
 void matmul_do4(t* A, t* B, t* C)
 {
@@ -116,6 +134,8 @@ void matmul_do4(t* A, t* B, t* C)
 		}
 	}
 }
+
+#endif
 
 void print_mat(t* A)
 {
@@ -165,13 +185,7 @@ clock_t matmul_benchmark()
 	#endif
 
 	clock_t start = clock();
-	#if defined(MATMUL_NAIVE)
 	matmul(A, B, C);
-	#elif defined(MATMUL_TILED)
-	matmul_tiled(A, B, C);
-	#elif defined(MATMUL_DO4)
-	matmul_do4(A, B, C);
-	#endif
 	clock_t end = clock();
 
 	#ifdef PRINT_MATRIX
@@ -201,29 +215,15 @@ int main(void) {
 	#endif
 
 	#if defined(MATMUL_TILED)
-	printf("MATMUL_TILED\n");
+	printf("MATMUL_TILED: TILE_SIZE = %d\n", TILE_SIZE);
+	#elif defined(MATMUL_DO2)
+	printf("MATMUL_DO2\n");
+	#elif defined(MATMUL_DO4)
+	printf("MATMUL_DO4\n");
 	#endif
 
-	if (N_TRIALS > 1) {
-		clock_t* times = malloc(sizeof(clock_t) * N_TRIALS);
-		
-		for (int i = 0; i < N_TRIALS; i++) {
-			times[i] = matmul_benchmark();
-			printf("CLOCK=%lu\t%.6f s\n", times[i], (double) times[i] / CLOCKS_PER_SEC);
-		}
-
-		// Compute average
-		clock_t sum = 0;
-		for (int i = 0; i < N_TRIALS; i++) {
-			sum += times[i];
-		}
-
-		printf("AVERAGE=%lu\n", sum / N_TRIALS);
-
-	} else {
-		clock_t time = matmul_benchmark();
-		printf("CLOCK=%lu\t%.6f s\n", time, (double) time / CLOCKS_PER_SEC);
-	}
+	clock_t time = matmul_benchmark();
+	printf("CLOCK=%lu\t%.6f s\n", time, (double) time / CLOCKS_PER_SEC);
 
 	return 0;
 }
