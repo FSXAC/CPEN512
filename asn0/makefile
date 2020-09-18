@@ -8,6 +8,10 @@ N_SIZE=256
 EXTRA_DEFINES=-D NONE
 DEFINES=-D N_SIZE=$(N_SIZE) $(EXTRA_DEFINES)
 
+MOD_DEFINES=-D N_SIZE=$(N_SIZE) -D MATMUL_DO4_B $(EXTRA_DEFINES)
+MOD_OPTS=-Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT --param l1-cache-line-size=64 --param l1-cache-size=512
+
+
 # Test
 test-int: matmul.c
 	gcc -o out/matmul_test_int matmul.c -D USE_INT $(DEFINES)
@@ -73,3 +77,54 @@ build-double-custom: matmul.c
 clean:
 	rm -rf out/*
 	rm -rf results/*
+
+
+
+# MODIFIED
+# None
+buildmod: matmul.c
+	gcc -o out/mod/matmul matmul.c -D USE_INT $(MOD_DEFINES)
+buildmod-float: matmul.c
+	gcc -o out/mod/matmul_f matmul.c -D USE_FLOAT $(MOD_DEFINES)
+buildmod-double: matmul.c
+	gcc -o out/mod/matmul_d matmul.c -D USE_DOUBLE $(MOD_DEFINES)
+
+# Optimization level 1
+buildmod-o: matmul.c
+	gcc -o out/mod/matmul_o1 matmul.c -O -D USE_INT $(MOD_DEFINES)
+buildmod-float-o: matmul.c
+	gcc -o out/mod/matmul_f_o1 matmul.c -O -D USE_FLOAT $(MOD_DEFINES)
+buildmod-double-o: matmul.c
+	gcc -o out/mod/matmul_d_o1 matmul.c -O -D USE_DOUBLE $(MOD_DEFINES)
+
+# Optimization level 2
+buildmod-o2: matmul.c
+	gcc -o out/mod/matmul_o2 matmul.c -O2 -D USE_INT $(MOD_DEFINES)
+buildmod-float-o2: matmul.c
+	gcc -o out/mod/matmul_f_o2 matmul.c -O2 -D USE_FLOAT $(MOD_DEFINES)
+buildmod-double-o2: matmul.c
+	gcc -o out/mod/matmul_d_o3 matmul.c -O2 -D USE_DOUBLE $(MOD_DEFINES)
+
+# Optimization level 3
+buildmod-o3: matmul.c
+	gcc -o out/mod/matmul_o3 matmul.c -O3 -D USE_INT $(MOD_DEFINES)
+buildmod-float-o3: matmul.c
+	gcc -o out/mod/matmul_f_o3 matmul.c -O3 -D USE_FLOAT $(MOD_DEFINES)
+buildmod-double-o3: matmul.c
+	gcc -o out/mod/matmul_d_o4 matmul.c -O3 -D USE_DOUBLE $(MOD_DEFINES)
+
+# Extra options
+buildmod-extra: matmul.c
+	gcc -o out/mod/matmul_e matmul.c $(EXTRA_OPTS) -D USE_INT $(MOD_DEFINES)
+buildmod-float-extra: matmul.c
+	gcc -o out/mod/matmul_f_e matmul.c $(EXTRA_OPTS) -D USE_FLOAT $(MOD_DEFINES)
+buildmod-double-extra: matmul.c
+	gcc -o out/mod/matmul_d_e matmul.c $(EXTRA_OPTS) -D USE_DOUBLE $(MOD_DEFINES)
+
+# Custom build options
+buildmod-custom: matmul.c
+	gcc -o out/mod/matmul_custom matmul.c $(MOD_OPTS) -D USE_INT $(MOD_DEFINES)
+buildmod-float-custom: matmul.c
+	gcc -o out/mod/matmul_f_custom matmul.c $(MOD_OPTS) -D USE_FLOAT $(MOD_DEFINES)
+buildmod-double-custom: matmul.c
+	gcc -o out/mod/matmul_d_custom matmul.c $(MOD_OPTS) -D USE_DOUBLE $(MOD_DEFINES)
