@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+# This corresponds to plot 2 in step 3 of the assignment:
+#    - Runtime divided by N3 vs optimization settings for all matrix sizes
+
+
+# So what we need to do is run the same thing of what we did in plot 1 but for different sizes
+# of N: N=256/512/1024/2048 -- we don't need to do 4096 again because we already did that in plot 1
+# and running N=4096 takes a really long time
+
+PP=results/mod/plot2
+./runcustom 256 "$PP/256"
+./runcustom 512 "$PP/512"
+./runcustom 1024 "$PP/1024"
+./runcustom 2048 "$PP/2048"
