@@ -1,0 +1,6 @@
+N_SIZE = 1024
+CLOCK_PER_SEC = 1000000
+Matrix (first 5 elements):   0.84  0.39  0.78  0.80  0.91 ... (truncated)
+Matrix (first 5 elements):   0.38  0.45  0.18  0.53  0.10 ... (truncated)
+Matrix (first 5 elements): 264.16257.26250.82261.54258.47 ... (truncated)
+CLOCK=669683	0.669683 s
