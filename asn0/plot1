@@ -3,4 +3,24 @@
 # This corresponds to plot 1 in step 3 of the assignment:
 #    - Runtime vs optimization settings for a size 4096 matrix
 
-./runall 512 "results/plot1_`date +%s`"
+./runall 4096 "results/plot1_`date +%s`"
+
+# PP=results/plot1_re_`date +%s`
+# mkdir -p $PP
+
+# echo "Running 16/18" && \
+# make build-custom N_SIZE=4096 && \
+# ./out/matmul_custom > $PP/matmul_custom.txt
+
+# echo "Running 17/18" && \
+# make build-float-custom N_SIZE=4096 && \
+# ./out/matmul_f_custom > $PP/matmul_f_custom.txt
+
+# echo "Running 18/18" && \
+# make build-double-custom N_SIZE=4096 && \
+# ./out/matmul_d_custom > $PP/matmul_d_custom.txt
+
+make build N_SIZE=4096 && ./out/matmul
+make build-o N_SIZE=4096 && ./out/matmul_o1
+make build-o2 N_SIZE=4096 && ./out/matmul_o2
+make build-o3 N_SIZE=4096 && ./out/matmul_o3

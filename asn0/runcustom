@@ -4,12 +4,21 @@
 if [ $# -eq 0 ]
 then
     echo "Must supply 1 argument: Path to results?"
+    echo "Must supply 1 argument: N_SIZE = ?"
     exit 1
 fi
 
-mkdir -p $1
-rm $1/*
+mkdir -p $2
+mkdir -p out
 
-echo "Running 1/3" && ./out/matmul_custom >> $1/matmul_custom.txt
-echo "Running 2/3" && ./out/matmul_f_custom >> $1/matmul_f_custom.txt
-echo "Running 3/3" && ./out/matmul_d_custom >> $1/matmul_d_custom.txt
+echo "Running 1/3" && \
+make build-custom N_SIZE=$1 && \
+./out/matmul_custom > $2/matmul_custom.txt
+
+echo "Running 2/3" && \
+make build-float-custom N_SIZE=$1 && \
+./out/matmul_f_custom > $2/matmul_f_custom.txt
+
+echo "Running 3/3" && \
+make build-double-custom N_SIZE=$1 && \
+./out/matmul_d_custom > $2/matmul_d_custom.txt
