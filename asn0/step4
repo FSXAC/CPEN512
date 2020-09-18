@@ -34,7 +34,13 @@ make build-float-custom N_SIZE=1024 \
 make build-float-custom N_SIZE=1024 \
     EXTRA_DEFINES="-D MATMUL_DO4"
 ./out/matmul_f_custom
-# 0.652407
+# 0.650896
+
+# Version 5 (Manual loop unroll - 16)
+make build-float-custom N_SIZE=1024 \
+    EXTRA_DEFINES="-D MATMUL_DO16"
+./out/matmul_f_custom
+# 0.650896
 
 # Version 5 (added cache parameters)
 # make build-float-custom N_SIZE=1024 \
