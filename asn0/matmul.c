@@ -135,15 +135,15 @@ void matmul(t* A, t* B, t* C)
 	}
 }
 
-#elif defined(MATMUL_DO16)
-/* Manual optimization 2c: manual unrolling (size 16)
+#elif defined(MATMUL_DO8)
+/* Manual optimization 2c: manual unrolling (size 8)
  */
 void matmul(t* A, t* B, t* C)
 {
 	int row, col, i;
 	for (row = 0; row < N_SIZE; row++) {
 		for (col = 0; col < N_SIZE; col++) {
-			for (i = 0; i < N_SIZE; i += 16) {
+			for (i = 0; i < N_SIZE; i += 8) {
 				GET(C, row, col) += GET(A, row, i) * GET(B, i, col) +
 									GET(A, row, i + 1) * GET(B, i + 1, col) +
 									GET(A, row, i + 2) * GET(B, i + 2, col) +
@@ -152,14 +152,6 @@ void matmul(t* A, t* B, t* C)
 									GET(A, row, i + 5) * GET(B, i + 5, col) +
 									GET(A, row, i + 6) * GET(B, i + 6, col) +
 									GET(A, row, i + 7) * GET(B, i + 7, col) +
-									GET(A, row, i + 8) * GET(B, i + 8, col) +
-									GET(A, row, i + 9) * GET(B, i + 9, col) +
-									GET(A, row, i + 10) * GET(B, i + 10, col) +
-									GET(A, row, i + 11) * GET(B, i + 11, col) +
-									GET(A, row, i + 12) * GET(B, i + 12, col) +
-									GET(A, row, i + 13) * GET(B, i + 13, col) +
-									GET(A, row, i + 14) * GET(B, i + 14, col) +
-									GET(A, row, i + 15) * GET(B, i + 15, col);
 			}
 		}
 	}
