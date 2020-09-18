@@ -103,7 +103,7 @@ buildmod-o2: matmul.c
 buildmod-float-o2: matmul.c
 	gcc -o out/mod/matmul_f_o2 matmul.c -O2 -D USE_FLOAT $(MOD_DEFINES)
 buildmod-double-o2: matmul.c
-	gcc -o out/mod/matmul_d_o3 matmul.c -O2 -D USE_DOUBLE $(MOD_DEFINES)
+	gcc -o out/mod/matmul_d_o2 matmul.c -O2 -D USE_DOUBLE $(MOD_DEFINES)
 
 # Optimization level 3
 buildmod-o3: matmul.c
@@ -111,7 +111,7 @@ buildmod-o3: matmul.c
 buildmod-float-o3: matmul.c
 	gcc -o out/mod/matmul_f_o3 matmul.c -O3 -D USE_FLOAT $(MOD_DEFINES)
 buildmod-double-o3: matmul.c
-	gcc -o out/mod/matmul_d_o4 matmul.c -O3 -D USE_DOUBLE $(MOD_DEFINES)
+	gcc -o out/mod/matmul_d_o3 matmul.c -O3 -D USE_DOUBLE $(MOD_DEFINES)
 
 # Extra options
 buildmod-extra: matmul.c

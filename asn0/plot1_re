@@ -39,12 +39,12 @@ make buildmod-o2 N_SIZE=$N && \
 ./out/mod/matmul_o2 > $PP/matmul_o2.txt
 
 echo "Running 8/18" && \
-make buildmod-double-o3 N_SIZE=4096 && \
-./out/mod/matmul_d_o4 > results/matmul_d_o3.txt &
+make buildmod-float-o2 N_SIZE=$N && \
+./out/mod/matmul_f_o2 > $PP/matmul_f_o2.txt
 
 echo "Running 9/18" && \
 make buildmod-double-o2 N_SIZE=$N && \
-./out/mod/matmul_d_o3 > $PP/matmul_d_o3.txt
+./out/mod/matmul_d_o2 > $PP/matmul_d_o2.txt
 
 echo "Running 10/18" && \
 make buildmod-o3 N_SIZE=$N && \
@@ -56,7 +56,7 @@ make buildmod-float-o3 N_SIZE=$N && \
 
 echo "Running 12/18" && \
 make buildmod-double-o3 N_SIZE=$N && \
-./out/mod/matmul_d_o4 > $PP/matmul_d_o4.txt
+./out/mod/matmul_d_o3 > $PP/matmul_d_o3.txt
 
 echo "Running 13/18" && \
 make buildmod-extra N_SIZE=$N && \
