@@ -3,4 +3,4 @@ CLOCK_PER_SEC = 1000000
 Matrix (first 5 elements):   0.84  0.39  0.78  0.80  0.91 ... (truncated)
 Matrix (first 5 elements):   0.80  0.29  0.10  0.26  0.57 ... (truncated)
 Matrix (first 5 elements): 510.33520.43508.55506.66512.82 ... (truncated)
-CLOCK=11180446	11.180446 s
+CLOCK=729122368	729.122368 s
