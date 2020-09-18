@@ -153,6 +153,24 @@ void matmul(t* A, t* B, t* C)
 	}
 }
 
+#elif defined(MATMUL_DO4_B)
+/* Manual optimization c: manually interchanging loop
+ */
+void matmul(t* A, t* B, t* C)
+{
+	int row, col, i;
+	for (row = 0; row < N_SIZE; row++) {
+		for (i = 0; i < N_SIZE; i += 4) {
+			for (col = 0; col < N_SIZE; col++) {
+				GET(C, row, col) += GET(A, row, i) * GET(B, i, col) +
+									GET(A, row, i + 1) * GET(B, i + 1, col) +
+									GET(A, row, i + 2) * GET(B, i + 2, col) +
+									GET(A, row, i + 3) * GET(B, i + 3, col);
+			}
+		}
+	}
+}
+
 #endif
 
 void print_mat(t* A)

@@ -40,13 +40,22 @@ make build-float-custom N_SIZE=1024 \
 make build-float-custom N_SIZE=1024 \
     EXTRA_DEFINES="-D MATMUL_DO4_A"
 ./out/matmul_f_custom
-# 0.650896 This creates less branching
+# 0.653942 (worse)
 
-# Version 5 -- derive from version 4
-# make build-float-custom N_SIZE=1024 \
-#     CUSTOM_OPTS=-Ofast -m64 -march=barcelona \
-#     -mtune=barcelona -ftree-vectorize -fmerge-all-constants \
-#     -fmodulo-sched -faggressive-loop-optimizations -floop-interchange \
-#     -funroll-all-loops -ftree-loop-distribution -funswitch-loops \
-#     --param=l1-cache-line-size=64 l2-cache-size=512
-# ./out/matmul_f_custom > results/step4/v5.txt
+# Version 5b -- from 4 -- manually interchanging the outer loop
+make build-float-custom N_SIZE=1024 \
+    EXTRA_DEFINES="-D MATMUL_DO4_B"
+./out/matmul_f_custom
+# 0.653942 (worse)
+
+# (worse) -fgcse-lm -fgcse-sm
+
+# Version 6 -- from 4
+gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=1024 -D MATMUL_DO4 \
+&& for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK=
+# 0.652408
+
+# Version 7 -- from 4
+gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=1024 -D MATMUL_DO4 \
+--param 
+&& for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK=
