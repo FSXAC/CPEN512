@@ -19,53 +19,53 @@ rm results/step4.txt
 N=4096
 
 # Version 1 (base / vanilla version)
-echo "\n\nVersion 1" >> results/step4.txt
+echo "\n\nVersion 1" 2>&1 | tee results/step4.txt
 make build-float-custom N_SIZE=$N \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.658661
 
 # Vession 2 (Triple-tiled at tilesize of 512)
-echo "\n\nVersion 2" >> results/step4.txt
+echo "\n\nVersion 2" 2>&1 | tee results/step4.txt
 make build-float-custom N_SIZE=$N EXTRA_DEFINES="-D MATMUL_TILED -D TILE_SIZE=512" \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 1.305483
 
 # Version 3 (Manual loop unroll - 2)
-echo "\n\nVersion 3" >> results/step4.txt
+echo "\n\nVersion 3" 2>&1 | tee results/step4.txt
 make build-float-custom N_SIZE=$N \
     EXTRA_DEFINES="-D MATMUL_DO2" \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.651673
 
 # Version 4 (Manual loop unroll - 4)
-echo "\n\nVersion 4" >> results/step4.txt
+echo "\n\nVersion 4" 2>&1 | tee results/step4.txt
 make build-float-custom N_SIZE=$N \
     EXTRA_DEFINES="-D MATMUL_DO4" \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.650896 This creates less branching
 
 # Version 5 -- from 4 -- manually interchanging the outer loop
-echo "\n\nVersion 5" >> results/step4.txt
+echo "\n\nVersion 5" 2>&1 | tee results/step4.txt
 make build-float-custom N_SIZE=$N \
     EXTRA_DEFINES="-D MATMUL_DO4_A" \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.653942 (worse)
 
 # Version 5b -- from 4 -- manually interchanging the outer loop
-echo "\n\nVersion 5b" >> results/step4.txt
+echo "\n\nVersion 5b" 2>&1 | tee results/step4.txt
 make build-float-custom N_SIZE=$N \
     EXTRA_DEFINES="-D MATMUL_DO4_B" \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.651355
 
 # Version 6 -- from 5b
-echo "\n\nVersion 6" >> results/step4.txt
+echo "\n\nVersion 6" 2>&1 | tee results/step4.txt
 gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=$N -D MATMUL_DO4_B \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.651204
 
 # Version 7 -- from 5b
-echo "\n\nVersion 7" >> results/step4.txt
+echo "\n\nVersion 7" 2>&1 | tee results/step4.txt
 gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=$N -D MATMUL_DO4_B \
 --param l1-cache-line-size=64 --param l1-cache-size=512 \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
