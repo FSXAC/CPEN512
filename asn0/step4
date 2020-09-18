@@ -16,7 +16,7 @@
 
 rm results/step4.txt
 
-N=512
+N=4096
 
 # Version 1 (base / vanilla version)
 echo "\n\nVersion 1" >> results/step4.txt
