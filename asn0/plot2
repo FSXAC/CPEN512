@@ -8,7 +8,7 @@
 # of N: N=256/512/1024/2048 -- we don't need to do 4096 again because we already did that in plot 1
 # and running N=4096 takes a really long time
 
-./runall 256 "results/plot2_`date +%s`/256"
-./runall 512 "results/plot2_`date +%s`/512"
-./runall 1024 "results/plot2_`date +%s`/1024"
-./runall 2048 "results/plot2_`date +%s`/2048"
+./runcustom 256 "results/plot2_`date +%s`/256"
+./runcustom 512 "results/plot2_`date +%s`/512"
+./runcustom 1024 "results/plot2_`date +%s`/1024"
+./runcustom 2048 "results/plot2_`date +%s`/2048"
