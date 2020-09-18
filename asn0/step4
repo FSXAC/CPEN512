@@ -34,15 +34,15 @@ make build-float-custom N_SIZE=1024 \
 make build-float-custom N_SIZE=1024 \
     EXTRA_DEFINES="-D MATMUL_DO4"
 ./out/matmul_f_custom
-# 0.650896
+# 0.650896 This creates less branching
 
-# Version 5 (Manual loop unroll - 16)
+# Version 5 -- from 4 -- manually interchanging the outer loop
 make build-float-custom N_SIZE=1024 \
-    EXTRA_DEFINES="-D MATMUL_DO8"
+    EXTRA_DEFINES="-D MATMUL_DO4_A"
 ./out/matmul_f_custom
-# 0.650896
+# 0.650896 This creates less branching
 
-# Version 5 (added cache parameters)
+# Version 5 -- derive from version 4
 # make build-float-custom N_SIZE=1024 \
 #     CUSTOM_OPTS=-Ofast -m64 -march=barcelona \
 #     -mtune=barcelona -ftree-vectorize -fmerge-all-constants \
