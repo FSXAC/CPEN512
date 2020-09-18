@@ -3,6 +3,4 @@
 # This corresponds to plot 1 in step 3 of the assignment:
 #    - Runtime vs optimization settings for a size 4096 matrix
 
-
-./buildall 4096
-./runall "results/plot1_`date +%s`/"
+./runall 512 "results/plot1_`date +%s`/"
