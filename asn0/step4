@@ -1,0 +1,51 @@
+#!/bin/zsh
+
+# This is a script to explore and document flags and transformations
+# that work for the loops
+
+# Rewrite the “vanilla” code by manually applying typical
+# compiler transformations, and applying the best custom
+# flags you can find, for N=4096. As your results improve,
+# plot performance (seconds) for each version (min 3 versions)
+# Document the flags and the transformations that work.
+
+# Controlled variables:
+# N = 4096 (1024 at first)
+# type is Float
+# Modifying from the custom flags
+
+# Version 1 (base / vanilla version)
+make build-float-custom N_SIZE=1024
+./out/matmul_f_custom
+# 0.658661
+
+# Vession 2 (Triple-tiled at tilesize of 512)
+make build-float-custom N_SIZE=1024 EXTRA_DEFINES="-D MATMUL_TILED -D TILE_SIZE=512"
+./out/matmul_f_custom
+
+# # Version 3 (Manual loop unroll - 2)
+# make build-float-custom N_SIZE=1024 \
+#     CUSTOM_OPTS=-Ofast -m64 -march=barcelona \
+#     -mtune=barcelona -ftree-vectorize -fmerge-all-constants \
+#     -fmodulo-sched -faggressive-loop-optimizations -floop-interchange \
+#     -funroll-all-loops -ftree-loop-distribution -funswitch-loops \
+#     EXTRA_DEFINES=-D MATMUL_DO2
+# ./out/matmul_f_custom > results/step4/v3.txt
+
+# # Version 4 (Manual loop unroll - 4)
+# make build-float-custom N_SIZE=1024 \
+#     CUSTOM_OPTS=-Ofast -m64 -march=barcelona \
+#     -mtune=barcelona -ftree-vectorize -fmerge-all-constants \
+#     -fmodulo-sched -faggressive-loop-optimizations -floop-interchange \
+#     -funroll-all-loops -ftree-loop-distribution -funswitch-loops \
+#     EXTRA_DEFINES=-D MATMUL_DO4
+# ./out/matmul_f_custom > results/step4/v4.txt
+
+# Version 5 (added cache parameters)
+# make build-float-custom N_SIZE=1024 \
+#     CUSTOM_OPTS=-Ofast -m64 -march=barcelona \
+#     -mtune=barcelona -ftree-vectorize -fmerge-all-constants \
+#     -fmodulo-sched -faggressive-loop-optimizations -floop-interchange \
+#     -funroll-all-loops -ftree-loop-distribution -funswitch-loops \
+#     --param=l1-cache-line-size=64 l2-cache-size=512
+# ./out/matmul_f_custom > results/step4/v5.txt

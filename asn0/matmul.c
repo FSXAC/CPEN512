@@ -84,7 +84,7 @@ void matmul(t* A, t* B, t* C)
 
 /* Manual optimization 1: Tiled matrix multiplication
  */
-void matmul_tiled(t* A, t* B, t* C)
+void matmul(t* A, t* B, t* C)
 {
 	int II2, II3, i1, i2, i3;
 	for (II2 = 0; II2 < N_SIZE; II2 += TILE_SIZE) {
@@ -104,7 +104,7 @@ void matmul_tiled(t* A, t* B, t* C)
 
 /* Manual optimization 2a: manual unrolling (size 2)
  */
-void matmul_do2(t* A, t* B, t* C)
+void matmul(t* A, t* B, t* C)
 {
 	int row, col, i;
 	for (row = 0; row < N_SIZE; row++) {
@@ -120,7 +120,7 @@ void matmul_do2(t* A, t* B, t* C)
 #elif defined(MATMUL_DO4)
 /* Manual optimization 2b: manual unrolling (size 4)
  */
-void matmul_do4(t* A, t* B, t* C)
+void matmul(t* A, t* B, t* C)
 {
 	int row, col, i;
 	for (row = 0; row < N_SIZE; row++) {
