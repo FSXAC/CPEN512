@@ -64,16 +64,17 @@ make build-float-custom N_SIZE=$N \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
 # 0.651355
 
+# # Version 6 -- from 5b
+# echo "\n\nVersion 6" 
+# echo "\n\nVersion 6" >> results/step4.txt
+# gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=$N -D MATMUL_DO4_B \
+# && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
+# # 0.651204
+
 # Version 6 -- from 5b
+# NEW VERSION 6
 echo "\n\nVersion 6" 
 echo "\n\nVersion 6" >> results/step4.txt
-gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=$N -D MATMUL_DO4_B \
-&& for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt
-# 0.651204
-
-# Version 7 -- from 5b
-echo "\n\nVersion 7" 
-echo "\n\nVersion 7" >> results/step4.txt
 gcc -o out/matmul_f_custom matmul.c -Ofast -m64 -march=barcelona -mtune=barcelona -ftree-vectorize -fmerge-all-constants -fmodulo-sched -faggressive-loop-optimizations -floop-interchange -funroll-loops -ftree-loop-distribution -funswitch-loops -D USE_FLOAT -D N_SIZE=$N -D MATMUL_DO4_B \
 --param l1-cache-line-size=64 --param l1-cache-size=512 \
 && for i in {1..5}; do ./out/matmul_f_custom; done | grep CLOCK= >> results/step4.txt

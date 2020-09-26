@@ -9,7 +9,7 @@
 # and running N=4096 takes a really long time
 
 PP=results/plot2_`date +%s`
-./runcustom 256 "$PP/256"
-./runcustom 512 "$PP/512"
-./runcustom 1024 "$PP/1024"
-./runcustom 2048 "$PP/2048"
+./runall 256 "$PP/256"
+./runall 512 "$PP/512"
+./runall 1024 "$PP/1024"
+./runall 2048 "$PP/2048"
