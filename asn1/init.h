@@ -1,3 +1,6 @@
+#ifndef INIT_H
+#define INIT_H
+
 #include <math.h>
 
 // #define TEST_MAT
@@ -18,15 +21,19 @@ float MAT[M][N] = {
 #define N 1025
 
 float MAT[M][N];
+float MAT_B[M][N];
 
 #endif
 
 /* This initializes the A array with size MxN with random integers casted as float */
-inline void init_array(float A[][N])
+inline void init_array(float A[][N], float A_backup[][N])
 {
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
+        {
             A[row][col] = (float) (rand() % 18 - 9);
+            A_backup[row][col] = A[row][col];
+        }
 }
 
 
@@ -111,3 +118,67 @@ void ref(float A[][N])
         else k++;
     }
 }
+
+/* This is used as a backup/checker */
+void ref_old(float A[][N])
+{
+    int h = 0, k = 0;
+    while (h < M && k < N)
+    {
+        int i_max = h;
+        float i_max_val = A[h][k];
+        for (int i = h; i < M; i++)
+        {
+            if (fabs(A[i][k]) > i_max_val)
+            {
+                i_max_val = fabs(A[i][k]);
+                i_max = i;
+            }
+        }
+
+        // Pivot
+        if (A[i_max][k] == 0.0) k++;
+        else
+        {
+            // Swap rows (2D array impl requires loop)
+            for (int i = 0; i < N; i++)
+            {
+                float tmp = A[i_max][i];
+                A[i_max][i] = A[h][i];
+                A[h][i] = tmp;
+            }
+
+            float f = A[h][k];
+            for (int j = k; j < N; j++) A[h][j] /= f;
+
+            // For each row below pivot reduce
+            for (int i = h + 1; i < M; i++)
+            {
+                float f = A[i][k] / A[h][k];
+                A[i][k] = 0.0;
+
+                // For each row apply same operation
+                for (int j = k + 1; j < N; j++)
+                    A[i][j] -= A[h][j] * f;
+            }
+
+            // Increment pivot
+            h++;
+            k++;
+        }
+    }
+}
+
+/* This varifies the answer */
+int verify_ref(float A[][N], float B[][N])
+{
+    int errors = 0;
+    for (int row = 0; row < M; row++)
+        for (int col = 0; col < N; col++)
+            if (A[row][col] != B[row][col])
+                errors++;
+
+    return errors;
+}
+
+#endif
