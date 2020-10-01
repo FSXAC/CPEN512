@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include "init.h"
 
@@ -16,9 +17,6 @@ void print_mat(float A[][N])
 void ref(float A[][N])
 {
     int h = 0, k = 0;
-
-    printf("original\n");
-    print_mat(A);
 
     while (h < M && k < N)
     {
@@ -48,8 +46,12 @@ void ref(float A[][N])
                 A[i_max][i] = A[h][i];
                 A[h][i] = tmp;
             }
-            printf("swapped index %d and %d\n", i_max, h);
-            print_mat(A);
+
+            float f = A[h][k];
+            for (int j = k; j < N; j++)
+            {
+                A[h][j] /= f;
+            }
 
             // For each row below pivot reduce
             for (int i = h + 1; i < M; i++)
@@ -62,9 +64,6 @@ void ref(float A[][N])
                 {
                     A[i][j] -= A[h][j] * f;
                 }
-
-                printf("reduced row %d by %.2f\n", i, f);
-                print_mat(A);
             }
 
             // Increment pivot
@@ -76,5 +75,16 @@ void ref(float A[][N])
 
 int main(void)
 {
+    init_array();
+    // print_mat(A);
+
+
+    clock_t start = clock();
     ref(A);
+    clock_t end = clock();
+
+    // print_mat(A);
+
+    clock_t elapsed_time = end - start;
+    printf("CLOCK=%lu\t%.6f s\n", elapsed_time, (double) elapsed_time / CLOCKS_PER_SEC);
 }
