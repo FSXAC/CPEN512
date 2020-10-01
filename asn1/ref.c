@@ -2,27 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-// void ref(float *A, int m, int n)
-// {
-//     int h = 0, k = 0;
+#include "init.h"
 
-//     while (h < m && k < n)
-//     {
-//         i_max = h;
-//         for (int i = h; i < m; )
-//     }
-// }
-
-#define TEST_M 3
-#define TEST_N 4
-
-float TEST_A[TEST_M][TEST_N] = {
-    {2.0, 1.0, -1.0, 8},
-    {-3.0, -1.0, 2.0, -11},
-    {-2.0, 1.0, 2.0, -3}
-};
-
-void print_mat(float A[][TEST_N], int M, int N)
+void print_mat(float A[][N])
 {
     for (int i = 0; i < M; i++, printf("\n"))
         for (int j = 0; j < N; j++)
@@ -31,12 +13,12 @@ void print_mat(float A[][TEST_N], int M, int N)
     printf("\n");
 }
 
-void ref(float A[][TEST_N], int M, int N)
+void ref(float A[][N])
 {
     int h = 0, k = 0;
 
     printf("original\n");
-    print_mat(A, M, N);
+    print_mat(A);
 
     while (h < M && k < N)
     {
@@ -67,7 +49,7 @@ void ref(float A[][TEST_N], int M, int N)
                 A[h][i] = tmp;
             }
             printf("swapped index %d and %d\n", i_max, h);
-            print_mat(A, M, N);
+            print_mat(A);
 
             // For each row below pivot reduce
             for (int i = h + 1; i < M; i++)
@@ -82,7 +64,7 @@ void ref(float A[][TEST_N], int M, int N)
                 }
 
                 printf("reduced row %d by %.2f\n", i, f);
-                print_mat(A, M, N);
+                print_mat(A);
             }
 
             // Increment pivot
@@ -94,6 +76,5 @@ void ref(float A[][TEST_N], int M, int N)
 
 int main(void)
 {
-    ref(TEST_A, 3, 4);
-    // print_mat(TEST_A, 3, 4);
+    ref(A);
 }
