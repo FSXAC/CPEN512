@@ -1,0 +1,1 @@
+gcc ref.c -o ref -O3 && ./ref

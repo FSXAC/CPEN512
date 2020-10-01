@@ -14,7 +14,7 @@ void print_mat(float A[][N])
     printf("\n");
 }
 
-void ref(float A[][N])
+void ref_old(float A[][N])
 {
     int h = 0, k = 0;
 
@@ -75,12 +75,12 @@ void ref(float A[][N])
 
 int main(void)
 {
-    init_array();
+    init_array(MAT);
     // print_mat(A);
 
 
     clock_t start = clock();
-    ref(A);
+    ref(MAT);
     clock_t end = clock();
 
     // print_mat(A);
