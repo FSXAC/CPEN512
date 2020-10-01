@@ -15,6 +15,12 @@ float MAT[M][N] = {
     {-2.0, 1.0, 2.0, -3}
 };
 
+float MAT_B[M][N] = {
+    {2.0, 1.0, -1.0, 8},
+    {-3.0, -1.0, 2.0, -11},
+    {-2.0, 1.0, 2.0, -3}
+};
+
 #else
 
 #define M 1024
@@ -26,7 +32,7 @@ float MAT_B[M][N];
 #endif
 
 /* This initializes the A array with size MxN with random integers casted as float */
-inline void init_array(float A[][N], float A_backup[][N])
+void init_array(float A[][N], float A_backup[][N])
 {
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
@@ -36,16 +42,15 @@ inline void init_array(float A[][N], float A_backup[][N])
         }
 }
 
-
 /* Find the row index of value with highest index */
-inline int find_max_row_index(float A[][N], int h, int k)
+int find_max_row_index(float A[][N], int h, int k)
 {
     int i_max = h;
     float val = fabs(A[h][k]);
     float i_max_val = val;
 
     /* Loop through each row */
-    for (int i = 0; i < M; i++)
+    for (int i = h; i < M; i++)
     {
         val = fabs(A[i][k]);
         if (val > i_max_val)
@@ -59,7 +64,7 @@ inline int find_max_row_index(float A[][N], int h, int k)
 }
 
 /* Swap two rows */
-inline void swap_rows(float A[][N], int row1, int row2)
+void swap_rows(float A[][N], int row1, int row2)
 {
     for (int i = 0; i < N; i++)
     {
@@ -70,7 +75,7 @@ inline void swap_rows(float A[][N], int row1, int row2)
 }
 
 /* Normalize the row */
-inline void normalize_row(float A[][N], int row, int start_col)
+void normalize_row(float A[][N], int row, int start_col)
 {
     float f = A[row][start_col];
 
@@ -95,7 +100,7 @@ void ref(float A[][N])
             swap_rows(A, h, i_max);
 
             /* Make the left most number in current row 1 */
-            normalize_row(A, h, k);
+            // normalize_row(A, h, k);
 
             /* Update everything under pivot */
             for (int i = h + 1; i < M; i++)
@@ -148,8 +153,8 @@ void ref_old(float A[][N])
                 A[h][i] = tmp;
             }
 
-            float f = A[h][k];
-            for (int j = k; j < N; j++) A[h][j] /= f;
+            // float f = A[h][k];
+            // for (int j = k; j < N; j++) A[h][j] /= f;
 
             // For each row below pivot reduce
             for (int i = h + 1; i < M; i++)
@@ -176,7 +181,10 @@ int verify_ref(float A[][N], float B[][N])
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
             if (A[row][col] != B[row][col])
+            {
                 errors++;
+                // printf("%.2f != %.2f\n", A[row][col], B[row][col]);
+            }
 
     return errors;
 }

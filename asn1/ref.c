@@ -16,13 +16,21 @@ void print_mat(float A[][N])
 
 int main(void)
 {
+    #ifdef TEST_MAT
+    print_mat(MAT);
+    #else
     init_array(MAT, MAT_B);
+    #endif
 
     /* Run ref */
     clock_t start = clock();
     ref(MAT);
     clock_t end = clock();
     clock_t elapsed_time = end - start;
+
+    #ifdef TEST_MAT
+    print_mat(MAT);
+    #endif
 
     /* Run verification (if enabled) */
     #define RUN_VERIF
