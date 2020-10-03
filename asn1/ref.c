@@ -14,8 +14,10 @@ void print_mat(float A[][N])
     printf("\n");
 }
 
-int main(void)
+main(void)
 {
+    printf("(M x N)=(%d x %d)\n", M, N);
+
     #ifdef TEST_MAT
     print_mat(MAT);
     #else
