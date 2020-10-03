@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-
-#include "init.h"
+#include "ref.h"
 
 void print_mat(float A[][N])
 {

@@ -1,7 +1,10 @@
-#ifndef INIT_H
-#define INIT_H
+#ifndef REF_H
+#define REF_H
 
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 // #define TEST_MAT
 #ifdef TEST_MAT
