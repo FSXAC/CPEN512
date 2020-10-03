@@ -3,14 +3,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_N           100000
+#define N 4096
+
 #define DISTRIBUTE_TAG  2001
 #define RETURN_TAG      2002
 
-#define N 4096
-
-float array[MAX_N];
-float array2[MAX_N];
+float array[N];
+float array2[N];
 
 /* MPI macros */
 #define ROOT_ID 0
