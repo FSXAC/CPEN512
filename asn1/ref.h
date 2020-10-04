@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define RUN_VERIF
+
 // #define TEST_MAT
 #ifdef TEST_MAT
 
@@ -28,8 +30,13 @@ float MAT_B[M][N] = {
 
 // #define M 1024
 // #define N 1025
+#ifndef M
 #define M 8
+#endif 
+
+#ifndef N
 #define N 8
+#endif
 
 float MAT[M][N];
 float MAT_B[M][N];
@@ -37,8 +44,10 @@ float MAT_B[M][N];
 #endif
 
 /* Prints matrix */
+// #define DEBUG_PRINT
 void print_mat(float A[][N])
 {
+    #ifdef DEBUG_PRINT
     for (int i = 0; i < M; i++, printf("\n"))
         for (int j = 0; j < N; j++)
         {
@@ -48,10 +57,12 @@ void print_mat(float A[][N])
         }
 
     printf("\n");
+    #endif
 }
 
 void print_mat2(float *A, int size_m, int size_n)
 {
+    #ifdef DEBUG_PRINT
     for (int i = 0; i < size_m; i++, printf("\n"))
         for (int j = 0; j < size_n; j++)
         {
@@ -60,7 +71,8 @@ void print_mat2(float *A, int size_m, int size_n)
             if (i == j) printf("\033[0m");
         }
 
-    printf("\n"); 
+    printf("\n");
+    #endif
 }
 
 /* This initializes the A array with size MxN with random integers casted as float */
