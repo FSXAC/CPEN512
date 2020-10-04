@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-// #define TEST_MAT
+#define TEST_MAT
 #ifdef TEST_MAT
 
 #define M 3
