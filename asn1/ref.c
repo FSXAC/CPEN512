@@ -1,15 +1,6 @@
 #include "ref.h"
 
-void print_mat(float A[][N])
-{
-    for (int i = 0; i < M; i++, printf("\n"))
-        for (int j = 0; j < N; j++)
-            printf("%6.1f", A[i][j]);
-
-    printf("\n");
-}
-
-main(void)
+int main(void)
 {
     printf("(M x N)=(%d x %d)\n", M, N);
 
@@ -38,4 +29,6 @@ main(void)
     #endif
 
     printf("CLOCK=%lu\t%.6f s\n", elapsed_time, (double) elapsed_time / CLOCKS_PER_SEC);
+
+    return 0;
 }

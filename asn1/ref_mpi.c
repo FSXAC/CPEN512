@@ -9,14 +9,17 @@ float mat_buffer[M][N];
 
 int main(int argc, char **argv)
 {
+    /* Time measures */
+    clock_t start, end;
+
     /* Initialize MPI */
     int id, num_procs;
+    MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
-    MPI_Comm_size(MPI_COMM_WORLD, &num_procs)
-
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
     /* Print MPI information */
-    printf("Process %d instantiated\n", num_procs);
+    printf("Process %d instantiated\n", id);
 
     /* Exclusive root process init */
     if (id == ROOT_ID)
@@ -38,16 +41,20 @@ int main(int argc, char **argv)
             exit(1);
         }
         else
-            printf("Total of %d processes instantiated.\n" num_procs);
+            printf("Total of %d processes instantiated.\n", num_procs);
 
         /* Run ref */
-        clock_t start = clock();
+        start = clock();
         // ref(MAT);
     }
 
     /* Divide up work (using scatter) */
     const unsigned int partition_size = (M * N) / num_procs;
-    MPI_Scatter(MAT, partition_size, MPI_FLOAT, sub_rand_nums, mat_buffer, MPI_FLOAT, ROOT_ID, MPI_COMM_WORLD);
+    MPI_Scatter(MAT, partition_size, MPI_FLOAT, mat_buffer, partition_size, MPI_FLOAT, ROOT_ID, MPI_COMM_WORLD);
+
+    // DEBUG: TEST
+    // for each process, we will do a print mat on the buffer
+    print_mat2(mat_buffer, M / num_procs, N);
 
     /* Shared tasks amongst all processes */
     // int h = 0, k = 0;
@@ -100,8 +107,8 @@ int main(int argc, char **argv)
     /* Verify by the root process in the end */
     if (id == ROOT_ID)
     {
-        clock_t end = clock();
-        clock_t elapsed_time = end - start;
+        end = clock();
+        const clock_t elapsed_time = end - start;
         
         // #ifdef TEST_MAT
         // print_mat(MAT);
@@ -117,4 +124,6 @@ int main(int argc, char **argv)
 
         printf("CLOCK=%lu\t%.6f s\n", elapsed_time, (double) elapsed_time / CLOCKS_PER_SEC);
     }
+
+    return MPI_Finalize();
 }

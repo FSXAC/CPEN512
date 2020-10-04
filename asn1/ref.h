@@ -34,6 +34,25 @@ float MAT_B[M][N];
 
 #endif
 
+/* Prints matrix */
+void print_mat(float A[][N])
+{
+    for (int i = 0; i < M; i++, printf("\n"))
+        for (int j = 0; j < N; j++)
+            printf("%6.1f", A[i][j]);
+
+    printf("\n");
+}
+
+void print_mat2(float *A, int size_m, int size_n)
+{
+    for (int i = 0; i < size_m; i++, printf("\n"))
+        for (int j = 0; j < size_n; j++)
+            printf("%6.1f", *(A + (size_n * i) + j));
+
+    printf("\n"); 
+}
+
 /* This initializes the A array with size MxN with random integers casted as float */
 void init_array(float A[][N], float A_backup[][N])
 {
