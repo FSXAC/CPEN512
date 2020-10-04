@@ -10,7 +10,7 @@ float mat_buffer[M][N];
 int main(int argc, char **argv)
 {
     /* Time measures */
-    clock_t start, end;
+    double start, end;
 
     /* Initialize MPI */
     int id, num_procs;
@@ -31,7 +31,9 @@ int main(int argc, char **argv)
         #ifdef TEST_MAT
         print_mat(MAT);
         #else
+        srand(13);
         init_array(MAT, MAT_B);
+        print_mat(MAT);
         #endif
 
 
@@ -43,9 +45,26 @@ int main(int argc, char **argv)
         else
             printf("Total of %d processes instantiated.\n", num_procs);
 
-        /* Run ref */
-        start = clock();
-        // ref(MAT);
+        start = MPI_Wtime();
+
+        /* Put matrix into "good"-enough form */
+        // int h = 0;
+        // int k = 0;
+        // while (h < N && k < M)
+        // {
+        //     if (MAT[h][k] == 0.0)
+        //     {
+        //         int h_max = find_max_row_index(MAT, h, k);
+        //         if (MAT[h_max][k] != 0.0)
+        //             swap_rows(MAT, h, h_max);
+        //         else
+        //             k++;
+        //     }
+
+        //     h++;
+        //     k++;
+        // }
+        // print_mat(MAT);
     }
 
     /* Divide up work (using scatter) */
@@ -54,75 +73,29 @@ int main(int argc, char **argv)
 
     // DEBUG: TEST
     // for each process, we will do a print mat on the buffer
-    print_mat2(mat_buffer, M / num_procs, N);
+    // print_mat2(mat_buffer, M / num_procs, N);
 
-    /* Shared tasks amongst all processes */
-    // int h = 0, k = 0;
-    // while (h < M && k < N)
-    // {
-    //     int i_max = h;
-    //     float i_max_val = A[h][k];
-    //     for (int i = h; i < M; i++)
-    //     {
-    //         if (fabs(A[i][k]) > i_max_val)
-    //         {
-    //             i_max_val = fabs(A[i][k]);
-    //             i_max = i;
-    //         }
-    //     }
-
-    //     // Pivot
-    //     if (A[i_max][k] == 0.0) k++;
-    //     else
-    //     {
-    //         // Swap rows (2D array impl requires loop)
-    //         for (int i = 0; i < N; i++)
-    //         {
-    //             float tmp = A[i_max][i];
-    //             A[i_max][i] = A[h][i];
-    //             A[h][i] = tmp;
-    //         }
-
-    //         // float f = A[h][k];
-    //         // for (int j = k; j < N; j++) A[h][j] /= f;
-
-    //         // For each row below pivot reduce
-    //         for (int i = h + 1; i < M; i++)
-    //         {
-    //             float f = A[i][k] / A[h][k];
-    //             A[i][k] = 0.0;
-
-    //             // For each row apply same operation
-    //             for (int j = k + 1; j < N; j++)
-    //                 A[i][j] -= A[h][j] * f;
-    //         }
-
-    //         // Increment pivot
-    //         h++;
-    //         k++;
-    //     }
-    // }
-
+    /* Our worker ID gives a hint to how we orchestrate communications */
 
     /* Verify by the root process in the end */
     if (id == ROOT_ID)
     {
-        end = clock();
-        const clock_t elapsed_time = end - start;
-        
-        // #ifdef TEST_MAT
-        // print_mat(MAT);
-        // #endif
+        end = MPI_Wtime();
+        const double elapsed_time = end - start;
 
-        // /* Run verification (if enabled) */
-        // #define RUN_VERIF
-        // #ifdef RUN_VERIF
-        // ref_old(MAT_B);
-        // int errors = verify_ref(MAT, MAT_B);
-        // printf("MISMATCH=%d\n", errors);
-        // #endif
+        // Sanity check
+        ref_noswap(MAT);
+        print_mat(MAT);
 
-        printf("CLOCK=%lu\t%.6f s\n", elapsed_time, (double) elapsed_time / CLOCKS_PER_SEC);
+        /* Run verification (if enabled) */
+        #define RUN_VERIF
+        #ifdef RUN_VERIF
+        ref_old_noswap(MAT_B);
+        int errors = verify_ref(MAT, MAT_B);
+        printf("MISMATCH=%d\n", errors);
+        #endif
+
+        printf("TIME=%.6f s\n", elapsed_time);
     }
 
     return MPI_Finalize();

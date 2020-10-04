@@ -12,7 +12,7 @@ int main(void)
 
     /* Run ref */
     clock_t start = clock();
-    ref(MAT);
+    ref_noswap(MAT);
     clock_t end = clock();
     clock_t elapsed_time = end - start;
 
@@ -23,7 +23,7 @@ int main(void)
     /* Run verification (if enabled) */
     #define RUN_VERIF
     #ifdef RUN_VERIF
-    ref_old(MAT_B);
+    ref_old_noswap(MAT_B);
     int errors = verify_ref(MAT, MAT_B);
     printf("MISMATCH=%d\n", errors);
     #endif

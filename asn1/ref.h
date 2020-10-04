@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define TEST_MAT
+// #define TEST_MAT
 #ifdef TEST_MAT
 
 #define M 3
@@ -26,8 +26,10 @@ float MAT_B[M][N] = {
 
 #else
 
-#define M 1024
-#define N 1025
+// #define M 1024
+// #define N 1025
+#define M 8
+#define N 9
 
 float MAT[M][N];
 float MAT_B[M][N];
@@ -39,7 +41,11 @@ void print_mat(float A[][N])
 {
     for (int i = 0; i < M; i++, printf("\n"))
         for (int j = 0; j < N; j++)
+        {
+            if (i == j) printf("\033[0;32m");
             printf("%6.1f", A[i][j]);
+            if (i == j) printf("\033[0m");
+        }
 
     printf("\n");
 }
@@ -48,7 +54,11 @@ void print_mat2(float *A, int size_m, int size_n)
 {
     for (int i = 0; i < size_m; i++, printf("\n"))
         for (int j = 0; j < size_n; j++)
+        {
+            if (i == j) printf("\033[0;32m");
             printf("%6.1f", *(A + (size_n * i) + j));
+            if (i == j) printf("\033[0m");
+        }
 
     printf("\n"); 
 }
@@ -59,7 +69,9 @@ void init_array(float A[][N], float A_backup[][N])
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
         {
-            A[row][col] = (float) (rand() % 18 - 9);
+            /* Make sure (1,1) element is never 0 */
+            // A[row][col] = (float) (rand() % 3 - 1);
+            A[row][col] = 0.1 * (rand() % 100 );
             A_backup[row][col] = A[row][col];
         }
 }
@@ -122,7 +134,41 @@ void ref(float A[][N])
             swap_rows(A, h, i_max);
 
             /* Make the left most number in current row 1 */
-            // normalize_row(A, h, k);
+            normalize_row(A, h, k);
+
+            /* Update everything under pivot */
+            for (int i = h + 1; i < M; i++)
+            {
+                /* Find the factor to multiply so that it becomes 0 */
+                float f = A[i][k] / A[h][k];
+
+                /* Set the first num to 0 to reduce computation */
+                A[i][k] = 0.0;
+
+                /* Subtract f times the first row */
+                for (int j = k + 1; j < N; j++)
+                    A[i][j] -= f * A[h][j];
+            }
+
+            /* Update pivot */
+            h++;
+            k++;
+        }
+        else k++;
+    }
+}
+
+void ref_noswap(float A[][N])
+{
+    int h = 0;  /* pivot row */
+    int k = 0;  /* pivot col */
+
+    while (h < M && k < N)
+    {
+        if (A[h][k] != 0.0)
+        {
+            /* Make the left most number in current row 1 */
+            normalize_row(A, h, k);
 
             /* Update everything under pivot */
             for (int i = h + 1; i < M; i++)
@@ -175,8 +221,38 @@ void ref_old(float A[][N])
                 A[h][i] = tmp;
             }
 
-            // float f = A[h][k];
-            // for (int j = k; j < N; j++) A[h][j] /= f;
+            float f = A[h][k];
+            for (int j = k; j < N; j++) A[h][j] /= f;
+
+            // For each row below pivot reduce
+            for (int i = h + 1; i < M; i++)
+            {
+                float f = A[i][k] / A[h][k];
+                A[i][k] = 0.0;
+
+                // For each row apply same operation
+                for (int j = k + 1; j < N; j++)
+                    A[i][j] -= A[h][j] * f;
+            }
+
+            // Increment pivot
+            h++;
+            k++;
+        }
+    }
+}
+
+void ref_old_noswap(float A[][N])
+{
+    int h = 0, k = 0;
+    while (h < M && k < N)
+    {
+        // Pivot
+        if (A[h][k] == 0.0) k++;
+        else
+        {
+            float f = A[h][k];
+            for (int j = k; j < N; j++) A[h][j] /= f;
 
             // For each row below pivot reduce
             for (int i = h + 1; i < M; i++)
@@ -197,8 +273,20 @@ void ref_old(float A[][N])
 }
 
 /* This varifies the answer */
+/* A is to be tested, B is reference */
 int verify_ref(float A[][N], float B[][N])
 {
+    for (int i = 1; i < M; i++) {
+        for (int j = 0; j < i; j++)
+        {
+            if (A[i][j] != 0.0)
+            {
+                printf("Not in REF!\n");
+                return -1;
+            }
+        }
+    }
+
     int errors = 0;
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
@@ -207,7 +295,6 @@ int verify_ref(float A[][N], float B[][N])
                 errors++;
                 // printf("%.2f != %.2f\n", A[row][col], B[row][col]);
             }
-
     return errors;
 }
 
