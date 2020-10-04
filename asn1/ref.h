@@ -29,7 +29,7 @@ float MAT_B[M][N] = {
 // #define M 1024
 // #define N 1025
 #define M 8
-#define N 9
+#define N 8
 
 float MAT[M][N];
 float MAT_B[M][N];
