@@ -1,7 +1,12 @@
 #include "ref.h"
+#include <mpi.h>
 
 int main(void)
 {
+    /* Malloc matrices */
+    MAT   = malloc(sizeof(float) * N * M);
+    MAT_B = malloc(sizeof(float) * N * M);
+
     printf("(M x N)=(%d x %d)\n", M, N);
 
     #ifdef TEST_MAT
@@ -11,10 +16,10 @@ int main(void)
     #endif
 
     /* Run ref */
-    clock_t start = clock();
+    double start = MPI_Wtime();
     ref_noswap(MAT);
-    clock_t end = clock();
-    clock_t elapsed_time = end - start;
+    double end = MPI_Wtime();
+    double elapsed_time = end - start;
 
     #ifdef TEST_MAT
     print_mat(MAT);
@@ -28,7 +33,7 @@ int main(void)
     printf("MISMATCH=%d\n", errors);
     #endif
 
-    printf("CLOCK=%lu\t%.6f s\n", elapsed_time, (double) elapsed_time / CLOCKS_PER_SEC);
+    printf("CLOCK=%.6e s\n", elapsed_time);
 
     return 0;
 }

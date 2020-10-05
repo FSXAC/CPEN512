@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define RUN_VERIF
+// #define RUN_VERIF
 
 // #define TEST_MAT
 #ifdef TEST_MAT
@@ -31,32 +31,43 @@ float MAT_B[M][N] = {
 // #define M 1024
 // #define N 1025
 #ifndef M
-#define M 8
+#define M 2048
 #endif 
 
 #ifndef N
-#define N 8
+#define N M
 #endif
 
-float MAT[M][N];
-float MAT_B[M][N];
+// float MAT[M][N];
+// float MAT_B[M][N];
+float *MAT;
+float *MAT_B;
 
 #endif
+
+/* Array access macro */
+// #define GET(A, row, col) A[row][col]
+// #define GET_P(A, row, col) (A + row * N + col)
+// #define GET(A, row, col) *GET_P(A, row, col)
+#define GET(A, row, col) A[row * N + col]
+
+#define MIN(A, B) (A > B) ? B : A
 
 /* Prints matrix */
-// #define DEBUG_PRINT
-void print_mat(float A[][N])
+#define DEBUG_PRINT
+// void print_mat(float A[][N])
+void print_mat(float *A)
 {
     #ifdef DEBUG_PRINT
-    for (int i = 0; i < M; i++, printf("\n"))
-        for (int j = 0; j < N; j++)
-        {
-            if (i == j) printf("\033[0;32m");
-            printf("%6.1f", A[i][j]);
-            if (i == j) printf("\033[0m");
-        }
+    // for (int i = 0; i < MIN(M, 16); i++, printf("\n"))
+    //     for (int j = 0; j < MIN(N, 16); j++)
+    //     {
+    //         if (i == j) printf("\033[0;32m");
+    //         printf("%6.1f", GET(A, i, j));
+    //         if (i == j) printf("\033[0m");
+    //     }
 
-    printf("\n");
+    // printf("\n");
     #endif
 }
 
@@ -76,29 +87,30 @@ void print_mat2(float *A, int size_m, int size_n)
 }
 
 /* This initializes the A array with size MxN with random integers casted as float */
-void init_array(float A[][N], float A_backup[][N])
+// void init_array(float A[][N], float A_backup[][N])
+void init_array(float *A, float *A_backup)
 {
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
         {
             /* Make sure (1,1) element is never 0 */
-            // A[row][col] = (float) (rand() % 3 - 1);
-            A[row][col] = 0.1 * (rand() % 100 );
-            A_backup[row][col] = A[row][col];
+            // GET(A, row, col) = (float) (rand() % 3 - 1);
+            GET(A, row, col) = (float) 0.1 * (rand() % 100 );
+            GET(A_backup, row, col) = GET(A, row, col);
         }
 }
 
 /* Find the row index of value with highest index */
-int find_max_row_index(float A[][N], int h, int k)
+int find_max_row_index(float *A, int h, int k)
 {
     int i_max = h;
-    float val = fabs(A[h][k]);
+    float val = fabs(GET(A, h, k));
     float i_max_val = val;
 
     /* Loop through each row */
     for (int i = h; i < M; i++)
     {
-        val = fabs(A[i][k]);
+        val = fabs(GET(A, i, k));
         if (val > i_max_val)
         {
             i_max_val = val;
@@ -110,27 +122,27 @@ int find_max_row_index(float A[][N], int h, int k)
 }
 
 /* Swap two rows */
-void swap_rows(float A[][N], int row1, int row2)
+void swap_rows(float *A, int row1, int row2)
 {
     for (int i = 0; i < N; i++)
     {
-        float tmp = A[row1][i];
-        A[row1][i] = A[row2][i];
-        A[row2][i] = tmp;
+        float tmp = GET(A, row1, i);
+        GET(A, row1, i)= GET(A, row2, i);
+        GET(A, row2, i) = tmp;
     }
 }
 
 /* Normalize the row */
-void normalize_row(float A[][N], int row, int start_col)
+void normalize_row(float *A, int row, int start_col)
 {
-    float f = A[row][start_col];
+    float f = GET(A, row, start_col);
 
     for (int j = start_col; j < N; j++)
-        A[row][j] /= f;
+        GET(A, row, j) /= f;
 }
 
 /* Cleaned up ref function */
-void ref(float A[][N])
+void ref(float *A)
 {
     int h = 0;  /* pivot row */
     int k = 0;  /* pivot col */
@@ -140,7 +152,7 @@ void ref(float A[][N])
         /* Find the row index with the highest mag */
         int i_max = find_max_row_index(A, h, k);
 
-        if (A[i_max][k] != 0.0)
+        if (GET(A, i_max, k) != 0.0)
         {
             /* Swap current pivot row with imax row */
             swap_rows(A, h, i_max);
@@ -152,14 +164,14 @@ void ref(float A[][N])
             for (int i = h + 1; i < M; i++)
             {
                 /* Find the factor to multiply so that it becomes 0 */
-                float f = A[i][k] / A[h][k];
+                float f = GET(A, i, k) / GET(A, h, k);
 
                 /* Set the first num to 0 to reduce computation */
-                A[i][k] = 0.0;
+                GET(A, i, k) = 0.0;
 
                 /* Subtract f times the first row */
                 for (int j = k + 1; j < N; j++)
-                    A[i][j] -= f * A[h][j];
+                    GET(A, i, j) -= f * GET(A, h, j);
             }
 
             /* Update pivot */
@@ -170,14 +182,14 @@ void ref(float A[][N])
     }
 }
 
-void ref_noswap(float A[][N])
+void ref_noswap(float *A)
 {
     int h = 0;  /* pivot row */
     int k = 0;  /* pivot col */
 
     while (h < M && k < N)
     {
-        if (A[h][k] != 0.0)
+        if (GET(A, h, k) != 0.0)
         {
             /* Make the left most number in current row 1 */
             normalize_row(A, h, k);
@@ -186,14 +198,14 @@ void ref_noswap(float A[][N])
             for (int i = h + 1; i < M; i++)
             {
                 /* Find the factor to multiply so that it becomes 0 */
-                float f = A[i][k] / A[h][k];
+                float f = GET(A, i, k) / GET(A, h, k);
 
                 /* Set the first num to 0 to reduce computation */
-                A[i][k] = 0.0;
+                GET(A, i, k) = 0.0;
 
                 /* Subtract f times the first row */
                 for (int j = k + 1; j < N; j++)
-                    A[i][j] -= f * A[h][j];
+                    GET(A, i, j) -= f * GET(A, h, j);
             }
 
             /* Update pivot */
@@ -205,46 +217,46 @@ void ref_noswap(float A[][N])
 }
 
 /* This is used as a backup/checker */
-void ref_old(float A[][N])
+void ref_old(float *A)
 {
     int h = 0, k = 0;
     while (h < M && k < N)
     {
         int i_max = h;
-        float i_max_val = A[h][k];
+        float i_max_val = GET(A, h, k);
         for (int i = h; i < M; i++)
         {
-            if (fabs(A[i][k]) > i_max_val)
+            if (fabs(GET(A, i, k)) > i_max_val)
             {
-                i_max_val = fabs(A[i][k]);
+                i_max_val = fabs(GET(A, i, k));
                 i_max = i;
             }
         }
 
         // Pivot
-        if (A[i_max][k] == 0.0) k++;
+        if (GET(A, i_max, k) == 0.0) k++;
         else
         {
             // Swap rows (2D array impl requires loop)
             for (int i = 0; i < N; i++)
             {
-                float tmp = A[i_max][i];
-                A[i_max][i] = A[h][i];
-                A[h][i] = tmp;
+                float tmp = GET(A, i_max, i);
+                GET(A, i_max, i) = GET(A, h, i);
+                GET(A, h, i) = tmp;
             }
 
-            float f = A[h][k];
-            for (int j = k; j < N; j++) A[h][j] /= f;
+            float f = GET(A, h, k);
+            for (int j = k; j < N; j++) GET(A, h, j) /= f;
 
             // For each row below pivot reduce
             for (int i = h + 1; i < M; i++)
             {
-                float f = A[i][k] / A[h][k];
-                A[i][k] = 0.0;
+                float f = GET(A, i, k) / GET(A, h, k);
+                GET(A, i, k) = 0.0;
 
                 // For each row apply same operation
                 for (int j = k + 1; j < N; j++)
-                    A[i][j] -= A[h][j] * f;
+                    GET(A, i, j) -= GET(A, h, j) * f;
             }
 
             // Increment pivot
@@ -254,27 +266,27 @@ void ref_old(float A[][N])
     }
 }
 
-void ref_old_noswap(float A[][N])
+void ref_old_noswap(float *A)
 {
     int h = 0, k = 0;
     while (h < M && k < N)
     {
         // Pivot
-        if (A[h][k] == 0.0) k++;
+        if (GET(A, h, k) == 0.0) k++;
         else
         {
-            float f = A[h][k];
-            for (int j = k; j < N; j++) A[h][j] /= f;
+            float f = GET(A, h, k);
+            for (int j = k; j < N; j++) GET(A, h, j) /= f;
 
             // For each row below pivot reduce
             for (int i = h + 1; i < M; i++)
             {
-                float f = A[i][k] / A[h][k];
-                A[i][k] = 0.0;
+                float f = GET(A, i, k) / GET(A, h, k);
+                GET(A, i, k) = 0.0;
 
                 // For each row apply same operation
                 for (int j = k + 1; j < N; j++)
-                    A[i][j] -= A[h][j] * f;
+                    GET(A, i, j) -= GET(A, h, j) * f;
             }
 
             // Increment pivot
@@ -286,12 +298,12 @@ void ref_old_noswap(float A[][N])
 
 /* This varifies the answer */
 /* A is to be tested, B is reference */
-int verify_ref(float A[][N], float B[][N])
+int verify_ref(float *A, float *B)
 {
     for (int i = 1; i < M; i++) {
         for (int j = 0; j < i; j++)
         {
-            if (A[i][j] != 0.0)
+            if (GET(A, i, j) != 0.0)
             {
                 printf("Not in REF!\n");
                 return -1;
@@ -302,10 +314,10 @@ int verify_ref(float A[][N], float B[][N])
     int errors = 0;
     for (int row = 0; row < M; row++)
         for (int col = 0; col < N; col++)
-            if (A[row][col] != B[row][col])
+            if (GET(A, row, col) != GET(B, row, col))
             {
                 errors++;
-                // printf("%.2f != %.2f\n", A[row][col], B[row][col]);
+                // printf("%.2f != %.2f\n", GET(A, row, col), B[row][col]);
             }
     return errors;
 }

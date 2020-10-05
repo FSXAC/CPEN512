@@ -12,3 +12,6 @@ mpirun -np 2 ./ref_mpi.out
 mpirun -np 4 ./ref_mpi.out
 mpirun -np 8 ./ref_mpi.out
 mpirun -np 16 ./ref_mpi.out
+mpirun -np 32 ./ref_mpi.out
+mpirun -np 64 ./ref_mpi.out
+mpirun -np 128 ./ref_mpi.out
