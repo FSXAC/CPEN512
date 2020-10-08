@@ -31,7 +31,7 @@ float MAT_B[M][N] = {
 // #define M 1024
 // #define N 1025
 #ifndef M
-#define M 1024
+#define M 8
 #endif 
 
 #ifndef N

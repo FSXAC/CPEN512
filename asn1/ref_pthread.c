@@ -91,10 +91,10 @@ void ref_pthread()
     struct thread_arg_t thread_args[NUM_THREADS];
 
     /* Add a barrier for synchronization */
-    pthread_barrier_t *barrier;
+    pthread_barrier_t barrier;
 
     /* Initialize barrier */
-    pthread_barrier_init(barrier, NULL, NUM_THREADS);
+    pthread_barrier_init(&barrier, NULL, NUM_THREADS);
 
     /* Make thread attributes (here I'm explicitly saying they need to be joinable) */
     pthread_attr_t thread_attr;
@@ -116,7 +116,7 @@ void ref_pthread()
         thread_args[t].end_index = (M / NUM_THREADS) * (t + 1) - 1;
         thread_args[t].matrix = MAT;
 
-        thread_args[t].barrier = barrier;
+        thread_args[t].barrier = &barrier;
 
         /* Arguments to creating a new thread:
          * 1. the thread identifier
