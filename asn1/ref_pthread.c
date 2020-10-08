@@ -5,13 +5,66 @@
 
 #define NUM_THREADS 4
 
-void *thread_do(void *thread_id)
-{
-    long tid;
-    tid = (long) thread_id;
+/* Pthread struct that contains information about what the thread is going to do */
+/* This is passed as arugment to the starting routine of each thread */
+struct thread_arg_t {
+    /* Pointer to the matrix */
+    float *matrix;
 
-    printf("Hello and goodbye! It's me, thread #%ld!\n", tid);
-    pthread_exit(NULL);
+    /* These values show the boundary of where the thread is operating on */
+    int start_index;
+    int end_index;
+
+    /* Thread id */
+    int tid;
+};
+
+/* Thread's starting routine */
+void *thread_do(void *thread_arg)
+{
+    /* First we need to obtain the values inside the struct */
+    /* By casting the void pointer to a thread arg pointer */
+    struct thread_arg_t *args = (struct thread_arg_t *) thread_arg;
+
+    float *matrix = args->matrix;
+    int start_index = args->start_index;
+    int end_index = args->end_index;
+    int tid = args->tid;
+
+    #ifdef DEBUG_PRINT
+    printf("Thread %d started\n", tid);
+    #endif
+
+    /* Loop through all the rows */
+    /* (we need to do this since threads can be assumed to be independent) */
+    int h = 0;
+    int k = 0;
+    while (h < M && k < N)
+    {
+        /* Only manipulate if the row index is within this thread's assignment */
+        if (h >= start_index && h <= end_index)
+        {
+            /* Partially the same as ref() in ref.h of the serialized case*/
+            normalize_row(matrix, h, k);
+
+            /* Also partially reduce every row below (in this thread) */
+            for (int i = h + 1; i <= end_index; i++)
+            {
+                /* Find the factor to multiply so that it becomes 0 */
+                float f = GET(matrix, i, k);
+
+                /* Set the first num to 0 to reduce computation */
+                GET(matrix, i, k) = 0.0;
+
+                /* Subtract f times the first row */
+                for (int j = k + 1; j < N; j++)
+                    GET(matrix, i, j) -= f * GET(matrix, h, j);
+            }
+        }
+
+        h++;
+        k++;
+    }
 }
 
 int main(void)
