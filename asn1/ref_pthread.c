@@ -1,6 +1,10 @@
 #include <pthread.h>
-#include <time.h>
 
+#ifdef __APPLE__
+#include "pthread_barrier.h"
+#endif
+
+#include <time.h>
 #include "ref.h"
 
 #define NUM_THREADS 2
@@ -18,6 +22,9 @@ struct thread_arg_t {
 
     /* Thread id */
     int tid;
+
+    /* Shared barrier for synchronization */
+    pthread_barrier_t *barrier;
 };
 
 /* Thread's starting routine */
@@ -32,39 +39,44 @@ void *thread_do(void *thread_arg)
     int end_index = args->end_index;
     int tid = args->tid;
 
+    /* Synchronization barrier */
+    pthread_barrier_t *barrier = args->barrier;
+
     #ifdef DEBUG_PRINT
     printf("Thread %d started\n", tid);
     #endif
 
     /* Loop through all the rows */
     /* (we need to do this since threads can be assumed to be independent) */
-    int h = 0;
-    int k = 0;
-    while (h < M && k < N)
+    for (int row_index = 0; row_index < M; row_index++)
     {
+        int col_index = row_index;
+
         /* Only manipulate if the row index is within this thread's assignment */
-        if (h >= start_index && h <= end_index)
+        if (row_index >= start_index && row_index <= end_index)
         {
             /* Partially the same as ref() in ref.h of the serialized case*/
-            normalize_row(matrix, h, k);
+            normalize_row(matrix, row_index, col_index);
+
+            /* Wait for other threads */
+            pthread_barrier_wait(barrier);
 
             /* Also partially reduce every row below (in this thread) */
-            for (int i = h + 1; i <= end_index; i++)
+            for (int i = row_index + 1; i <= end_index; i++)
             {
                 /* Find the factor to multiply so that it becomes 0 */
-                float f = GET(matrix, i, k);
+                float f = GET(matrix, i, col_index);
 
                 /* Set the first num to 0 to reduce computation */
-                GET(matrix, i, k) = 0.0;
+                GET(matrix, i, col_index) = 0.0;
 
                 /* Subtract f times the first row */
-                for (int j = k + 1; j < N; j++)
-                    GET(matrix, i, j) -= f * GET(matrix, h, j);
+                for (int j = col_index + 1; j < N; j++)
+                    GET(matrix, i, j) -= f * GET(matrix, row_index, j);
             }
         }
 
-        h++;
-        k++;
+        printf("%d: h=%d, k=%d\n", tid, row_index, col_index);
     }
 
     return NULL;
@@ -77,6 +89,12 @@ void ref_pthread()
 
     /* And their corresponding args structs */
     struct thread_arg_t thread_args[NUM_THREADS];
+
+    /* Add a barrier for synchronization */
+    pthread_barrier_t *barrier;
+
+    /* Initialize barrier */
+    pthread_barrier_init(barrier, NULL, NUM_THREADS);
 
     /* Make thread attributes (here I'm explicitly saying they need to be joinable) */
     pthread_attr_t thread_attr;
@@ -97,6 +115,8 @@ void ref_pthread()
         thread_args[t].start_index = (M / NUM_THREADS) * t;
         thread_args[t].end_index = (M / NUM_THREADS) * (t + 1) - 1;
         thread_args[t].matrix = MAT;
+
+        thread_args[t].barrier = barrier;
 
         /* Arguments to creating a new thread:
          * 1. the thread identifier
