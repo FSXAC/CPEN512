@@ -54,3 +54,4 @@ dkms.conf
 **/out/
 asn1/init
 asn1/ref
+.DS_Store

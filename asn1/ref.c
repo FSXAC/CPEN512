@@ -1,5 +1,5 @@
 #include "ref.h"
-#include <mpi.h>
+#include <time.h>
 
 int main(void)
 {
@@ -16,10 +16,10 @@ int main(void)
     #endif
 
     /* Run ref */
-    double start = MPI_Wtime();
+    clock_t start = clock();
     ref_noswap(MAT);
-    double end = MPI_Wtime();
-    double elapsed_time = end - start;
+    clock_t end = clock();
+    clock_t elapsed_time = (double) (end - start) / CLOCKS_PER_SEC;
 
     #ifdef TEST_MAT
     print_mat(MAT);

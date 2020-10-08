@@ -31,7 +31,7 @@ float MAT_B[M][N] = {
 // #define M 1024
 // #define N 1025
 #ifndef M
-#define M 2048
+#define M 1024
 #endif 
 
 #ifndef N
@@ -59,15 +59,21 @@ float *MAT_B;
 void print_mat(float *A)
 {
     #ifdef DEBUG_PRINT
-    // for (int i = 0; i < MIN(M, 16); i++, printf("\n"))
-    //     for (int j = 0; j < MIN(N, 16); j++)
-    //     {
-    //         if (i == j) printf("\033[0;32m");
-    //         printf("%6.1f", GET(A, i, j));
-    //         if (i == j) printf("\033[0m");
-    //     }
+    if (M > 16 || N > 16)
+    {
+        printf("Too large\n");
+        return;
+    }
+    
+    for (int i = 0; i < M; i++, printf("\n"))
+        for (int j = 0; j < N; j++)
+        {
+            if (i == j) printf("\033[0;32m");
+            printf("%6.1f", GET(A, i, j));
+            if (i == j) printf("\033[0m");
+        }
 
-    // printf("\n");
+    printf("\n");
     #endif
 }
 
@@ -95,7 +101,7 @@ void init_array(float *A, float *A_backup)
         {
             /* Make sure (1,1) element is never 0 */
             // GET(A, row, col) = (float) (rand() % 3 - 1);
-            GET(A, row, col) = (float) 0.1 * (rand() % 100 );
+            GET(A, row, col) = (float) 0.1 * (rand() % 400 );
             GET(A_backup, row, col) = GET(A, row, col);
         }
 }
