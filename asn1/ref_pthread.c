@@ -3,7 +3,7 @@
 
 #include "ref.h"
 
-#define NUM_THREADS 4
+#define NUM_THREADS 2
 
 /* Pthread struct that contains information about what the thread is going to do */
 /* This is passed as arugment to the starting routine of each thread */
@@ -12,6 +12,7 @@ struct thread_arg_t {
     float *matrix;
 
     /* These values show the boundary of where the thread is operating on */
+    /* [start_index, end_index] <- inclusive */
     int start_index;
     int end_index;
 
@@ -65,13 +66,17 @@ void *thread_do(void *thread_arg)
         h++;
         k++;
     }
+
+    return NULL;
 }
 
-int main(void)
+void ref_pthread()
 {
-    /* Pthread stuff */
     /* Make an array of threads */
     pthread_t threads[NUM_THREADS];
+
+    /* And their corresponding args structs */
+    struct thread_arg_t thread_args[NUM_THREADS];
 
     /* Make thread attributes (here I'm explicitly saying they need to be joinable) */
     pthread_attr_t thread_attr;
@@ -83,9 +88,15 @@ int main(void)
     pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_JOINABLE);
 
     /* Make threads */
-    for (long t = 0; t < NUM_THREADS; t++)
+    for (int t = 0; t < NUM_THREADS; t++)
     {
-        printf("Main: creating thread %ld\n", t);
+        printf("Main: creating thread %d\n", t);
+
+        /* Prepare the struct arg */
+        thread_args[t].tid = t;
+        thread_args[t].start_index = (M / NUM_THREADS) * t;
+        thread_args[t].end_index = (M / NUM_THREADS) * (t + 1) - 1;
+        thread_args[t].matrix = MAT;
 
         /* Arguments to creating a new thread:
          * 1. the thread identifier
@@ -93,7 +104,7 @@ int main(void)
          * 3. start routine
          * 4. arguments to the routine
          */
-        int rc = pthread_create(&threads[t], &thread_attr, thread_do, (void *) t);
+        int rc = pthread_create(&threads[t], &thread_attr, thread_do, (void *) &thread_args[t]);
 
         /* Check return code */
         if (rc)
@@ -106,8 +117,8 @@ int main(void)
     /* Free attribute (no longer need it) */
     pthread_attr_destroy(&thread_attr);
 
-    /* Wait for all threads to finish and join */
-    for (long t = 0; t < NUM_THREADS; t++)
+    /* Ending operation: Wait for all threads to finish and join */
+    for (int t = 0; t < NUM_THREADS; t++)
     {
         void *status;
         int rc = pthread_join(threads[t], &status);
@@ -120,13 +131,10 @@ int main(void)
 
         printf("%d joined!\n", t);
     }
+}
 
-    /* Make sure we exit pthread */
-    // pthread_exit(NULL);
-
-    // return 0;
-
-    /* Old stuff */
+int main(void)
+{
     /* Malloc matrices */
     MAT   = malloc(sizeof(float) * N * M);
     MAT_B = malloc(sizeof(float) * N * M);
@@ -142,13 +150,9 @@ int main(void)
 
     /* Run ref */
     clock_t start = clock();
-    ref_noswap(MAT);
+    ref_pthread();
     clock_t end = clock();
     double elapsed_time = (double) (end - start) / CLOCKS_PER_SEC;
-
-    // #ifdef TEST_MAT
-    print_mat(MAT);
-    // #endif
 
     /* Run verification (if enabled) */
     #define RUN_VERIF
@@ -159,6 +163,9 @@ int main(void)
     #endif
 
     printf("CLOCK=%.6e s\n", elapsed_time);
+
+    /* Make sure we exit pthread */
+    pthread_exit(NULL);
 
     return 0;
 }

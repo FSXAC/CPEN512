@@ -306,25 +306,51 @@ void ref_old_noswap(float *A)
 /* A is to be tested, B is reference */
 int verify_ref(float *A, float *B)
 {
-    for (int i = 1; i < M; i++) {
-        for (int j = 0; j < i; j++)
+    int done = 0;
+    for (int i = 1; i < M && !done; i++) {
+        for (int j = 0; j < i && !done; j++)
         {
             if (GET(A, i, j) != 0.0)
             {
                 printf("Not in REF!\n");
-                return -1;
+                done = 1;
             }
         }
     }
 
+    /* Print diff and count errors */
     int errors = 0;
-    for (int row = 0; row < M; row++)
-        for (int col = 0; col < N; col++)
-            if (GET(A, row, col) != GET(B, row, col))
-            {
+    
+    for (int i = 0; i < M; i++, printf("\n"))
+        for (int j = 0; j < N; j++)
+        {
+            if (GET(A, i, j) != GET(B, i, j)) {
+                #ifdef DEBUG_PRINT
+                printf("\033[0;31m");
+                printf("%6.1f", GET(A, i, j));
+                printf("\033[0m");
+                #endif
+
                 errors++;
-                // printf("%.2f != %.2f\n", GET(A, row, col), B[row][col]);
             }
+            else if (i == j)
+            {
+                #ifdef DEBUG_PRINT
+                printf("\033[0;32m");
+                printf("%6.1f", GET(A, i, j));
+                printf("\033[0m");
+                #endif
+            }
+            else
+            {
+                #ifdef DEBUG_PRINT
+                printf("%6.1f", GET(A, i, j));
+                #endif
+            }
+        }
+
+    printf("\n");
+
     return errors;
 }
 
