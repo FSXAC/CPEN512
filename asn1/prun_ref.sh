@@ -1,5 +1,5 @@
 # Run with optimizer
-gcc -pthread ref_pthread.c -o ref.out -O1 -D M=$1 -D N=$1 && ./ref.out
+gcc -pthread ref_pthread.c -o ref.out -O3 -D M=$1 -D N=$1 -D NUM_THREADS=$2 && ./ref.out
 
 # Debug
 # gcc -pthread ref_pthread.c -o ref.out -g -D M=$1 -D N=$1 && gdb ./ref.out

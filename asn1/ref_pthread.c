@@ -7,7 +7,9 @@
 #include <time.h>
 #include "ref.h"
 
-#define NUM_THREADS 2
+#ifndef NUM_THREADS
+#define NUM_THREADS 4
+#endif
 
 /* Pthread struct that contains information about what the thread is going to do */
 /* This is passed as arugment to the starting routine of each thread */
@@ -61,7 +63,11 @@ void *thread_do(void *thread_arg)
             normalize_row(matrix, row_index, col_index);
 
             /* Wait for other threads */
+            #ifdef PRINT_DEBUG
             printf("%d: %s (responsible)\n", tid, pthread_barrier_wait(barrier) ? "unlocked" : "locked");
+            #else
+            pthread_barrier_wait(barrier);
+            #endif
 
             /* Also partially reduce every row below (in this thread) */
             for (int i = row_index + 1; i <= end_index; i++)
@@ -79,17 +85,22 @@ void *thread_do(void *thread_arg)
         else
         {
             /* Wait for the sender */
+            #ifdef PRINT_DEBUG
             printf("%d: %s\n", tid, pthread_barrier_wait(barrier) ? "unlocked" : "locked");
+            #else
+            pthread_barrier_wait(barrier);
+            #endif
 
             /* Eliminate every row that this thread is responsible for */
-            for (int i = start_index; i <= end_index; i++)
-            {
-                double f = GET(matrix, i, col_index);
+            if (row_index < start_index)
+                for (int i = start_index; i <= end_index; i++)
+                {
+                    double f = GET(matrix, i, col_index);
 
-                /* Subtrace f times the pivot row */
-                for (int j = col_index; j < N; j++)
-                    GET(matrix, i, j) -= f * GET(matrix, row_index, j);
-            }
+                    /* Subtrace f times the pivot row */
+                    for (int j = col_index; j < N; j++)
+                        GET(matrix, i, j) -= f * GET(matrix, row_index, j);
+                }
         }
     }
 
@@ -122,7 +133,9 @@ void ref_pthread()
     /* Make threads */
     for (int t = 0; t < NUM_THREADS; t++)
     {
+        #ifdef DEBUG_PRINT
         printf("Main: creating thread %d\n", t);
+        #endif
 
         /* Prepare the struct arg */
         thread_args[t].tid = t;
@@ -163,7 +176,9 @@ void ref_pthread()
             exit(-1);
         }
 
+        #ifdef DEBUG_PRINT
         printf("%d joined!\n", t);
+        #endif
     }
 }
 
@@ -190,23 +205,28 @@ int main(void)
     #endif
 
     /* Run single threaded */
-    #ifdef RUN_VERIF
+    printf("Running serial . . .\n");
+    clock_t start = clock();
     ref_old_noswap(MAT_B);
-    #endif
+    clock_t end = clock();
+    double time_serial = (double) (end - start) / CLOCKS_PER_SEC;
 
     /* Run parallel ref */
-    clock_t start = clock();
+    printf("Running parallel . . .\n");
+    start = clock();
     ref_pthread();
-    clock_t end = clock();
-    double elapsed_time = (double) (end - start) / CLOCKS_PER_SEC;
+    end = clock();
+    double time_parallel = (double) (end - start) / CLOCKS_PER_SEC;
 
     /* Run verification (if enabled) */
     #ifdef RUN_VERIF
+    printf("Running verification . . .\n");
     int errors = verify_ref(MAT, MAT_B);
     printf("MISMATCH=%d\n", errors);
     #endif
 
-    printf("CLOCK=%.6e s\n", elapsed_time);
+    printf("SERIAL TIME=%.6e s\n", time_serial);
+    printf("PARALL TIME=%.6e s\n", time_parallel);
 
     /* Make sure we exit pthread */
     pthread_exit(NULL);

@@ -1,12 +1,13 @@
 #ifndef REF_H
 #define REF_H
 
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define RUN_VERIF
+// #define RUN_VERIF
 
 // #define TEST_MAT
 #ifdef TEST_MAT
@@ -54,8 +55,7 @@ float *MAT_B;
 #define MIN(A, B) (A > B) ? B : A
 
 /* Prints matrix */
-#define DEBUG_PRINT
-// void print_mat(float A[][N])
+// #define DEBUG_PRINT
 void print_mat(float *A)
 {
     #ifdef DEBUG_PRINT
@@ -302,6 +302,29 @@ void ref_old_noswap(float *A)
     }
 }
 
+/* Floating point comparison */
+int nearlyEqual(float a, float b) {
+    // float absA = fabs(a);
+    // float absB = fabs(b);
+    // float diff = fabs(a - b);
+
+    // if (a == b) {
+    //     return 1;
+    // } else if (a == 0 || b == 0 || diff < FLT_MIN) {
+    //     // a or b is zero or both are extremely close to it
+    //     // relative error is less meaningful here
+    //     return diff < (FLT_EPSILON * FLT_MIN);
+    // } else { // use relative error
+    //     return diff / (absA + absB) < FLT_EPSILON;
+    // }
+    return (fabs(a - b) < 0.001);
+}
+
+// #define PRINT_RED(X) printf("\033[0;31m%8.3f\033[0m", X);
+// #define PRINT_GREEN(X) printf("\033[0;32m%8.3f\033[0m", X);
+#define PRINT_RED(X) printf("%8.3f", X);
+#define PRINT_GREEN(X) printf("%8.3f", X);
+
 /* This varifies the answer */
 /* A is to be tested, B is reference */
 int verify_ref(float *A, float *B)
@@ -321,15 +344,13 @@ int verify_ref(float *A, float *B)
     /* Print diff and count errors */
     int errors = 0;
     
-    for (int i = 0; i < M; i++, printf("\n"))
+    for (int i = 0; i < M; i++)
     {
         for (int j = 0; j < N; j++)
         {
-            if (GET(A, i, j) != GET(B, i, j)) {
+            if (!nearlyEqual(GET(A, i, j), GET(B, i, j))) {
                 #ifdef DEBUG_PRINT
-                printf("\033[0;31m");
-                printf("%6.1f", GET(A, i, j));
-                printf("\033[0m");
+                PRINT_RED(GET(A, i, j));
                 #endif
 
                 errors++;
@@ -337,26 +358,29 @@ int verify_ref(float *A, float *B)
             else if (i == j)
             {
                 #ifdef DEBUG_PRINT
-                printf("\033[0;32m");
-                printf("%6.1f", GET(A, i, j));
-                printf("\033[0m");
+                PRINT_GREEN(GET(A, i, j));
                 #endif
             }
             else
             {
                 #ifdef DEBUG_PRINT
-                printf("%6.1f", GET(A, i, j));
+                printf("%8.3f", GET(A, i, j));
                 #endif
             }
         }
 
         // Print correct answer
+        #ifdef DEBUG_PRINT
         printf("\t");
         for (int j = 0; j < N; j++)
-            printf("%6.1f", GET(B, i, j));
+            printf("%8.3f", GET(B, i, j));
+        printf("\n");
+        #endif
     }
 
+    #ifdef DEBUG_PRINT
     printf("\n");
+    #endif
 
     return errors;
 }
