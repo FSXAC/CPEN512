@@ -5,3 +5,4 @@
 - https://computing.llnl.gov/tutorials/parallel_comp/
 - https://blog.albertarmea.com/post/47089939939/using-pthreadbarrier-on-mac-os-x
     - Barriers are not implmeneted by default in Mac
+

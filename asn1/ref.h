@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-// #define RUN_VERIF
+#define RUN_VERIF
 
 // #define TEST_MAT
 #ifdef TEST_MAT
@@ -322,6 +322,7 @@ int verify_ref(float *A, float *B)
     int errors = 0;
     
     for (int i = 0; i < M; i++, printf("\n"))
+    {
         for (int j = 0; j < N; j++)
         {
             if (GET(A, i, j) != GET(B, i, j)) {
@@ -348,6 +349,12 @@ int verify_ref(float *A, float *B)
                 #endif
             }
         }
+
+        // Print correct answer
+        printf("\t");
+        for (int j = 0; j < N; j++)
+            printf("%6.1f", GET(B, i, j));
+    }
 
     printf("\n");
 

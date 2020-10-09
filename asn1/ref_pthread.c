@@ -48,18 +48,20 @@ void *thread_do(void *thread_arg)
 
     /* Loop through all the rows */
     /* (we need to do this since threads can be assumed to be independent) */
+    /* Note: the row_index here is the 'global' row index */
     for (int row_index = 0; row_index < M; row_index++)
     {
         int col_index = row_index;
 
         /* Only manipulate if the row index is within this thread's assignment */
+        /* This is similar to MPI's send */
         if (row_index >= start_index && row_index <= end_index)
         {
             /* Partially the same as ref() in ref.h of the serialized case*/
             normalize_row(matrix, row_index, col_index);
 
             /* Wait for other threads */
-            pthread_barrier_wait(barrier);
+            printf("%d: %s (responsible)\n", tid, pthread_barrier_wait(barrier) ? "unlocked" : "locked");
 
             /* Also partially reduce every row below (in this thread) */
             for (int i = row_index + 1; i <= end_index; i++)
@@ -67,16 +69,28 @@ void *thread_do(void *thread_arg)
                 /* Find the factor to multiply so that it becomes 0 */
                 float f = GET(matrix, i, col_index);
 
-                /* Set the first num to 0 to reduce computation */
-                GET(matrix, i, col_index) = 0.0;
-
-                /* Subtract f times the first row */
-                for (int j = col_index + 1; j < N; j++)
+                /* Subtract f times the pivot row */
+                for (int j = col_index; j < N; j++)
                     GET(matrix, i, j) -= f * GET(matrix, row_index, j);
             }
         }
 
-        printf("%d: h=%d, k=%d\n", tid, row_index, col_index);
+        /* This part is similar to MPI receive portion */
+        else
+        {
+            /* Wait for the sender */
+            printf("%d: %s\n", tid, pthread_barrier_wait(barrier) ? "unlocked" : "locked");
+
+            /* Eliminate every row that this thread is responsible for */
+            for (int i = start_index; i <= end_index; i++)
+            {
+                double f = GET(matrix, i, col_index);
+
+                /* Subtrace f times the pivot row */
+                for (int j = col_index; j < N; j++)
+                    GET(matrix, i, j) -= f * GET(matrix, row_index, j);
+            }
+        }
     }
 
     return NULL;
@@ -155,6 +169,13 @@ void ref_pthread()
 
 int main(void)
 {
+    /* Check if the work can be divided */
+    if (M % NUM_THREADS != 0)
+    {
+        printf("Cannot divide work evenenly!\n");
+        exit(1);
+    }
+
     /* Malloc matrices */
     MAT   = malloc(sizeof(float) * N * M);
     MAT_B = malloc(sizeof(float) * N * M);
@@ -168,16 +189,19 @@ int main(void)
     print_mat(MAT);
     #endif
 
-    /* Run ref */
+    /* Run single threaded */
+    #ifdef RUN_VERIF
+    ref_old_noswap(MAT_B);
+    #endif
+
+    /* Run parallel ref */
     clock_t start = clock();
     ref_pthread();
     clock_t end = clock();
     double elapsed_time = (double) (end - start) / CLOCKS_PER_SEC;
 
     /* Run verification (if enabled) */
-    #define RUN_VERIF
     #ifdef RUN_VERIF
-    ref_old_noswap(MAT_B);
     int errors = verify_ref(MAT, MAT_B);
     printf("MISMATCH=%d\n", errors);
     #endif
