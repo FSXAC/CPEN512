@@ -60,8 +60,13 @@ if __name__ == '__main__':
                 run_output = subprocess.check_output([RUN_CMD]).decode('utf-8')
 
                 if 'Error' not in run_output:
-                    serial_time = float(re_serial.findall(run_output)[0])
-                    parallel_time = float(re_parallel.findall(run_output)[0])
+                    try:
+                        serial_time = float(re_serial.findall(run_output)[0])
+                        parallel_time = float(re_parallel.findall(run_output)[0])
+                    except IndexError as identifier:
+                        print('\nError: matching error!')
+                        print(run_output)
+                        continue
 
                     if (int(re_mismatch.findall(run_output)[0]) != 0):
                         print("\nError: mismatch detected!")
