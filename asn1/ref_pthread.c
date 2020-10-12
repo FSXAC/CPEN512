@@ -168,7 +168,7 @@ int main(void)
     /* Check if the work can be divided */
     if (M % NUM_THREADS != 0)
     {
-        printf("Cannot divide work evenenly!\n");
+        printf("Error: Cannot divide work evenenly!\n");
         exit(1);
     }
 
@@ -212,8 +212,8 @@ int main(void)
     printf("MISMATCH=%d\n", errors);
     #endif
 
-    printf("SERIAL TIME=%.6f s\n", time_serial);
-    printf("PARALL TIME=%.6f s\n", time_parallel);
+    printf("SERIAL TIME=%.6e s\n", time_serial);
+    printf("PARALL TIME=%.6e s\n", time_parallel);
 
     /* Make sure we exit pthread */
     pthread_exit(NULL);

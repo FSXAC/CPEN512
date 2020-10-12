@@ -1,5 +1,6 @@
+#!/bin/sh
 # Run with optimizer
-gcc -pthread ref_pthread.c -o ref.out -O3 -finline-functions -funroll-loops -m64 -D M=$1 -D N=$1 -D NUM_THREADS=$2 && ./ref.out
+gcc -pthread ref_pthread.c -o ref_pthread.out -O1 -finline-functions -funroll-loops -m64 -D M=$1 -D N=$1 -D NUM_THREADS=$2
 
 # Debug
 # gcc -pthread ref_pthread.c -o ref.out -g -D M=$1 -D N=$1 && gdb ./ref.out
