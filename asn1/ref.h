@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define RUN_VERIF
+// #define RUN_VERIF
 // #define TEST_MAT
 // #define DEBUG_PRINT
 

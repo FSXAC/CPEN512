@@ -13,7 +13,7 @@ RUN_CMD = './ref_pthread.out'
 
 # Test params specify the matrix size and number of threads
 LESS_THREADS = [2, 4, 8]
-MORE_THREADS = [2, 4, 8, 16, 32, 64]
+MORE_THREADS = [2, 4, 8, 16, 32, 64, 128]
 
 TEST_PARAMS = [
     (8, LESS_THREADS),
