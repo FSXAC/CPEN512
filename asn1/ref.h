@@ -8,8 +8,9 @@
 #include <time.h>
 
 #define RUN_VERIF
-
 // #define TEST_MAT
+// #define DEBUG_PRINT
+
 #ifdef TEST_MAT
 
 #define M 3
@@ -55,7 +56,6 @@ float *MAT_B;
 #define MIN(A, B) (A > B) ? B : A
 
 /* Prints matrix */
-#define DEBUG_PRINT
 void print_mat(float *A)
 {
     #ifdef DEBUG_PRINT
@@ -340,9 +340,6 @@ int verify_ref(float *A, float *B)
             }
         }
     }
-
-    // temp
-    return 0;
 
     /* Print diff and count errors */
     int errors = 0;
