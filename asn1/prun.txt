@@ -1,5 +1,0 @@
-(M x N)=(256 x 256)
-Running serial . . .
-Running parallel . . .
-SERIAL TIME=5.679000e-03 s
-PARALL TIME=2.981300e-02 s
