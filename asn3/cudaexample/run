@@ -1,0 +1,1 @@
+nvcc vecadd.cu -o vecadd.out -O0 -g && ./vecadd.out
