@@ -1,0 +1,2 @@
+nvcc ref.cu -o ref.out -O0 -g
+gdb ./ref.out -ex "b ref.cu:68" -ex "r"

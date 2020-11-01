@@ -8,12 +8,12 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define RUN_VERIF
+// #define RUN_VERIF
 // #define TEST_MAT
-#define DEBUG_PRINT
+// #define DEBUG_PRINT
 
 #ifndef M
-#define M 8
+#define M 2048
 #endif 
 
 #ifndef N
@@ -32,8 +32,8 @@ void print_mat(float *A)
 {
     #ifdef DEBUG_PRINT
     int i, j;
-    for (i = 0; i < MIN(M, 10); i++, printf("\n"))
-        for (j = 0; j < MIN(N, 10); j++)
+    for (i = 0; i < MIN(M, 20); i++, printf("\n"))
+        for (j = 0; j < MIN(N, 20); j++)
         {
             // printf("%d %d / %d %d\n", i, j, M, N);
             if (i == j) printf("\033[0;32m");

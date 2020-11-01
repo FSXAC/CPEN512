@@ -2,20 +2,28 @@
 // #include "cuda.h"
 // #include "cuda_runtime_api.h"
 
-#define TPB 16
+#define TPB 8
 
  __global__
 void scale_row(float *MAT, int pivot)
 {
     int thread_x = (blockIdx.x * blockDim.x) + threadIdx.x;
     int thread_y = (blockIdx.y * blockDim.y) + threadIdx.y;
-    int tid = thread_y * N + thread_x;
+
+    if (thread_y > 0)
+        printf("thread y: %d \n", thread_y);
+
+    int tid = blockIdx.x * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x;
     
-    if (thread_y == pivot && thread_y < M && thread_x < N)
+    if (thread_x < N)
     {
         /* Assuming pivot col == pivot row always */
         int pivot_idx = pivot * N + pivot;
-        MAT[tid] /= MAT[pivot_idx];
+        int current_idx = pivot * N + thread_x;
+        float scale = MAT[pivot_idx];
+        __syncthreads();
+        printf("tid %d, array index %d (%d, %d)\n", tid, current_idx, pivot, thread_x); 
+        MAT[current_idx] /= scale;
     }
 }
 
@@ -31,11 +39,12 @@ void subtract_row(float *MAT, int pivot)
         int pivot_idx = pivot * N + pivot;
 
         /* The factor to divide by */
-        float f = MAT[thread_y * N] / MAT[pivot_idx];
-        MAT[tid] -= f * MAT[pivot_idx];
+        // float f = MAT[thread_y * N] / MAT[pivot_idx];
+        // MAT[tid] -= f * MAT[pivot_idx];
     }
 }
 
+#define DEBUG_GPU
 void ref_cuda(float *MAT)
 {
 
@@ -62,16 +71,31 @@ void ref_cuda(float *MAT)
          * Normally we just do M / TPB
          * But this is modified so that we always have at least 1 block
          */
-        int elements_to_process = N - col;
+        // int elements_to_process = N - col;
+        int elements_to_process = N;
         int block_size = (elements_to_process - 1) / TPB + 1;
+        printf("blocksize: %d\n", block_size);
         scale_row<<<block_size, TPB>>>(MATD, row);
         cudaThreadSynchronize();
 
+        #ifdef DEBUG_GPU
+        printf("Scaling row %d\n", row);
+        cudaMemcpy(MAT, (void *) MATD, sizeof(float) * M * N, cudaMemcpyDeviceToHost);
+        print_mat(MAT);
+        #endif
+
         /* Block size is now the remining elements */
-        elements_to_process = (N - row) * (M - col);
-        block_size = (elements_to_process - 1) / TPB + 1;
-        subtract_row<<<block_size, TPB>>>(MATD, row);
-        cudaThreadSynchronize();
+        // elements_to_process = (N - row) * M;
+        // // elements_to_process = (N - row) * (M - col);
+        // block_size = (elements_to_process - 1) / TPB + 1;
+        // subtract_row<<<block_size, TPB>>>(MATD, row);
+        // cudaThreadSynchronize();
+
+        // #ifdef DEBUG_GPU
+        // printf("Eliminating rows after row %d\n", row);
+        // cudaMemcpy(MAT, (void *) MATD, sizeof(float) * M * N, cudaMemcpyDeviceToHost);
+        // print_mat(MAT);
+        // #endif
     }
 
     /* Copy back from device to host */
@@ -83,6 +107,10 @@ void ref_cuda(float *MAT)
 
 int main(void)
 {
+    /* Time keeping */
+    struct timeval begin, end;
+    double time_serial;
+
     /* Malloc matrices */
     MAT   = (float *) malloc(sizeof(float) * N * M);
     MAT_B = (float *) malloc(sizeof(float) * N * M);
@@ -93,13 +121,12 @@ int main(void)
     print_mat(MAT);
 
     /* Run single threaded */
-    printf("Running serial . . .\n");
-    struct timeval begin, end;
-    gettimeofday(&begin, 0);
-    ref_old_noswap(MAT_B);
-    gettimeofday(&end, 0);
-    double time_serial = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
-    print_mat(MAT_B);
+    // printf("Running serial . . .\n");
+    // gettimeofday(&begin, 0);
+    // ref_old_noswap(MAT_B);
+    // gettimeofday(&end, 0);
+    // time_serial = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
+    // print_mat(MAT_B);
 
     /* Run parallel ref */
     printf("Running parallel . . .\n");
