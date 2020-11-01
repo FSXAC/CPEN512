@@ -8,12 +8,11 @@
 #include <time.h>
 #include <sys/time.h>
 
-// #define RUN_VERIF
-// #define TEST_MAT
-// #define DEBUG_PRINT
+#define RUN_VERIF
+#define DEBUG_PRINT
 
 #ifndef M
-#define M 2048
+#define M 16
 #endif 
 
 #ifndef N
