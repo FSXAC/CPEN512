@@ -31,29 +31,11 @@ void scale_row(float *MAT, int pivot)
 void scale_row2(float *MAT, int row, float pivot_val)
 {
     int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
-    // int thread_y = (blockIdx.y * blockDim.y) + threadIdx.y;
-
-    // if (thread_y > 0)
-    //     printf("thread y: %d \n", thread_y);
-
-    // int tid = blockIdx.x * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x;
-    // printf("(x:%d, t:%d) ", thread_x, tid);
-    
     if (tid < N)
     {
         /* Assuming pivot col == pivot row always */
         int current_idx = row * N + tid;
-        // printf("tid %d, array index %d (%d, %d)\n", tid, current_idx, pivot, thread_x); 
-        // printf("[%d](%.1f) / %.1f\n", current_idx, MAT[current_idx], pivot_val);
-        // if (current_idx < 200)
-        // {
-        //     printf("[%d](%.1f) / %.1f\n", current_idx, MAT[current_idx], pivot_val);
-        //     MAT[current_idx] /= pivot_val;
-        //     // printf(" = %.1f\n", MAT[current_idx]);
-        // }
-        // else
-        //     MAT[current_idx] /= pivot_val;
-        MAT[current_idx] = pivot_val;
+        MAT[current_idx] /= pivot_val;
     }
 }
 
@@ -103,21 +85,19 @@ void ref_cuda(float *MAT)
          */
         // int elements_to_process = N - col;
         int elements_to_process = N;
-        int n_blocks = (int) ceil((float) elements_to_process / BLOCK_SIZE);
-        float pivot_val = MAT[row * N + col];
-        printf("blocksize: %d, pivot_val: %f\n", block_size, pivot_val);
-
-        scale_row2<<<n_blocks, BLOCK_SIZE>>>(MATD, row, 1.0);
-
-
-        // scale_row2<<<block_size, BLOCK_SIZE>>>(MATD, row, pivot_val);
-        // scale_row<<<block_size, BLOCK_SIZE>>>(MATD, row);
-        cudaError_t status = cudaDeviceSynchronize();
-        if (status != cudaSuccess)
-        {
-            printf("ERROR!\n");
-            return;
-        }
+        int num_blocks = (int) ceil((float) elements_to_process / BLOCK_SIZE);
+        // float pivot_val = MAT[row * N + col];
+        // printf("blocksize: %d, pivot_val: %f\n", num_blocks, pivot_val);
+        // scale_row2<<<num_blocks, BLOCK_SIZE>>>(MATD, row, 1.0);
+        // scale_row2<<<num_blocks, BLOCK_SIZE>>>(MATD, row, pivot_val);
+        scale_row<<<num_blocks, BLOCK_SIZE>>>(MATD, row);
+        cudaDeviceSynchronize();
+        // cudaError_t status = cudaDeviceSynchronize();
+        // if (status != cudaSuccess)
+        // {
+        //     printf("ERROR!\n");
+        //     return;
+        // }
 
         #ifdef DEBUG_GPU
         printf("Scaling row %d\n", row);

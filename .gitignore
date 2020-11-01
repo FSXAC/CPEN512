@@ -55,3 +55,8 @@ dkms.conf
 asn1/init
 asn1/ref
 .DS_Store
+
+*.a
+*.elf
+*.o
+*.d
