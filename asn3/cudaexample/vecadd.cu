@@ -1,71 +1,88 @@
-// Serialized program
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-
-#define N 4096
-
-__global__
-void vector_add(float *out, float *a, float *b)
+#include <math.h>
+ 
+// CUDA kernel. Each thread takes care of one element of c
+__global__ void vecAdd(double *a, double *b, double *c, int n)
 {
-    for (int i = 0; i < N; i++)
-    {
-        out[i] = a[i] + b[i];
-    }
+    // Get our global thread ID
+    int id = blockIdx.x*blockDim.x+threadIdx.x;
+ 
+    // Make sure we do not go out of bounds
+    if (id < n)
+        c[id] = a[id] + b[id];
 }
-
-void vector_add_ref(float *out, float *a, float *b)
+ 
+int main( int argc, char* argv[] )
 {
-    for (int i = 0; i < N; i++)
-    {
-        out[i] = a[i] + b[i];
+    // Size of vectors
+    int n = 100000;
+ 
+    // Host input vectors
+    double *h_a;
+    double *h_b;
+    //Host output vector
+    double *h_c;
+ 
+    // Device input vectors
+    double *d_a;
+    double *d_b;
+    //Device output vector
+    double *d_c;
+ 
+    // Size, in bytes, of each vector
+    size_t bytes = n*sizeof(double);
+ 
+    // Allocate memory for each vector on host
+    h_a = (double*)malloc(bytes);
+    h_b = (double*)malloc(bytes);
+    h_c = (double*)malloc(bytes);
+ 
+    // Allocate memory for each vector on GPU
+    cudaMalloc(&d_a, bytes);
+    cudaMalloc(&d_b, bytes);
+    cudaMalloc(&d_c, bytes);
+ 
+    int i;
+    // Initialize vectors on host
+    for( i = 0; i < n; i++ ) {
+        h_a[i] = sin(i)*sin(i);
+        h_b[i] = cos(i)*cos(i);
     }
-}
-
-int main(void)
-{
-    float *a, *b, *out;
-    float *x, *y, *z;
-
-    a = (float *) malloc(sizeof(float) * N);
-    b = (float *) malloc(sizeof(float) * N);
-    out = (float *) malloc(sizeof(float) * N);
-
-    for (int i = 0; i < N; i++) {
-        a[i] = 1.0 * i;
-        b[i] = 2.0 * i;
-    }
-
-    /* Allocate device memory */
-    cudaMalloc((void**) &x, sizeof(float) * N);
-    cudaMalloc((void**) &y, sizeof(float) * N);
-    cudaMalloc((void**) &z, sizeof(float) * N);
-
-    /* Do memory copy */
-    cudaMemcpy(x, a, sizeof(float) * N, cudaMemcpyHostToDevice);
-    cudaMemcpy(y, b, sizeof(float) * N, cudaMemcpyHostToDevice);
-
-    // Vector add function
-    vector_add<<<1, 1>>>(z, x, y);
-
-    // Sync
-    cudaDeviceSynchronize();
-
-    /* Copy again */
-    cudaMemcpy(out, z, sizeof(float) * N, cudaMemcpyDeviceToHost);
-
-    for (int i = 0; i < 6; i++)
-    {
-        printf("%8.3f + %8.3f = %8.3f\n", a[i], b[i], out[i]);
-    }
-
-    cudaFree(x);
-    cudaFree(y);
-    cudaFree(z);
-
-    free(a);
-    free(b);
-    free(out);
+ 
+    // Copy host vectors to device
+    cudaMemcpy( d_a, h_a, bytes, cudaMemcpyHostToDevice);
+    cudaMemcpy( d_b, h_b, bytes, cudaMemcpyHostToDevice);
+ 
+    int blockSize, gridSize;
+ 
+    // Number of threads in each thread block
+    blockSize = 1024;
+ 
+    // Number of thread blocks in grid
+    gridSize = (int)ceil((float)n/blockSize);
+ 
+    // Execute the kernel
+    vecAdd<<<gridSize, blockSize>>>(d_a, d_b, d_c, n);
+ 
+    // Copy array back to host
+    cudaMemcpy( h_c, d_c, bytes, cudaMemcpyDeviceToHost );
+ 
+    // Sum up vector c and print result divided by n, this should equal 1 within error
+    double sum = 0;
+    for(i=0; i<n; i++)
+        sum += h_c[i];
+    printf("final result: %f\n", sum/n);
+ 
+    // Release device memory
+    cudaFree(d_a);
+    cudaFree(d_b);
+    cudaFree(d_c);
+ 
+    // Release host memory
+    free(h_a);
+    free(h_b);
+    free(h_c);
+ 
+    return 0;
 }

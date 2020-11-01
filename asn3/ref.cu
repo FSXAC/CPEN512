@@ -2,7 +2,7 @@
 // #include "cuda.h"
 // #include "cuda_runtime_api.h"
 
-#define TPB 8
+#define BLOCK_SIZE 16
 
  __global__
 void scale_row(float *MAT, int pivot)
@@ -24,6 +24,36 @@ void scale_row(float *MAT, int pivot)
         __syncthreads();
         printf("tid %d, array index %d (%d, %d)\n", tid, current_idx, pivot, thread_x); 
         MAT[current_idx] /= scale;
+    }
+}
+
+ __global__
+void scale_row2(float *MAT, int row, float pivot_val)
+{
+    int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+    // int thread_y = (blockIdx.y * blockDim.y) + threadIdx.y;
+
+    // if (thread_y > 0)
+    //     printf("thread y: %d \n", thread_y);
+
+    // int tid = blockIdx.x * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x;
+    // printf("(x:%d, t:%d) ", thread_x, tid);
+    
+    if (tid < N)
+    {
+        /* Assuming pivot col == pivot row always */
+        int current_idx = row * N + tid;
+        // printf("tid %d, array index %d (%d, %d)\n", tid, current_idx, pivot, thread_x); 
+        // printf("[%d](%.1f) / %.1f\n", current_idx, MAT[current_idx], pivot_val);
+        // if (current_idx < 200)
+        // {
+        //     printf("[%d](%.1f) / %.1f\n", current_idx, MAT[current_idx], pivot_val);
+        //     MAT[current_idx] /= pivot_val;
+        //     // printf(" = %.1f\n", MAT[current_idx]);
+        // }
+        // else
+        //     MAT[current_idx] /= pivot_val;
+        MAT[current_idx] = pivot_val;
     }
 }
 
@@ -61,34 +91,45 @@ void ref_cuda(float *MAT)
 
         /* Block size is the number of blocks required 
          * 
-         * So if we have 32 elements in the row and TPB is 16, we need
+         * So if we have 32 elements in the row and BLOCK_SIZE is 16, we need
          * 2 blocks to process this row
          *
          * Optimization can be made since we don't need to process
          * all the elements before the pivot, since
          * we can assume they're zeros
          *
-         * Normally we just do M / TPB
+         * Normally we just do M / BLOCK_SIZE
          * But this is modified so that we always have at least 1 block
          */
         // int elements_to_process = N - col;
         int elements_to_process = N;
-        int block_size = (elements_to_process - 1) / TPB + 1;
-        printf("blocksize: %d\n", block_size);
-        scale_row<<<block_size, TPB>>>(MATD, row);
-        cudaThreadSynchronize();
+        int n_blocks = (int) ceil((float) elements_to_process / BLOCK_SIZE);
+        float pivot_val = MAT[row * N + col];
+        printf("blocksize: %d, pivot_val: %f\n", block_size, pivot_val);
+
+        scale_row2<<<n_blocks, BLOCK_SIZE>>>(MATD, row, 1.0);
+
+
+        // scale_row2<<<block_size, BLOCK_SIZE>>>(MATD, row, pivot_val);
+        // scale_row<<<block_size, BLOCK_SIZE>>>(MATD, row);
+        cudaError_t status = cudaDeviceSynchronize();
+        if (status != cudaSuccess)
+        {
+            printf("ERROR!\n");
+            return;
+        }
 
         #ifdef DEBUG_GPU
         printf("Scaling row %d\n", row);
         cudaMemcpy(MAT, (void *) MATD, sizeof(float) * M * N, cudaMemcpyDeviceToHost);
-        print_mat(MAT);
+        // print_mat(MAT);
         #endif
 
         /* Block size is now the remining elements */
         // elements_to_process = (N - row) * M;
         // // elements_to_process = (N - row) * (M - col);
-        // block_size = (elements_to_process - 1) / TPB + 1;
-        // subtract_row<<<block_size, TPB>>>(MATD, row);
+        // block_size = (elements_to_process - 1) / BLOCK_SIZE + 1;
+        // subtract_row<<<block_size, BLOCK_SIZE>>>(MATD, row);
         // cudaThreadSynchronize();
 
         // #ifdef DEBUG_GPU
