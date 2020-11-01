@@ -8,8 +8,9 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define RUN_VERIF
-#define DEBUG_PRINT
+// #define RUN_VERIF
+// #define DEBUG_PRINT
+// #define DEBUG_GPU
 
 #ifndef M
 #define M 16
