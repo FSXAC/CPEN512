@@ -1,2 +1,2 @@
-nvcc ref.cu -o ref.out
-./ref.out
+nvcc ref.cu -o ref.out -O3 -m64 \
+    && ./ref.out

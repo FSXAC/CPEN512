@@ -13,7 +13,7 @@
 // #define DEBUG_GPU
 
 #ifndef M
-#define M 16
+#define M 4096
 #endif 
 
 #ifndef N

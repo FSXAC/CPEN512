@@ -1,6 +1,6 @@
 #include "ref.h"
 
-#define BLOCK_SIZE 8
+#define BLOCK_SIZE 1024
 
  __global__
 void scale_row(float *MAT, int pivot)
@@ -40,6 +40,9 @@ void ref_cuda(float *MAT)
     float *MATD;
     cudaMalloc(&MATD, sizeof(float) * M * N);
     cudaMemcpy(MATD, (void *) MAT, sizeof(float) * M * N, cudaMemcpyHostToDevice);
+
+    struct timeval begin, end;
+    gettimeofday(&begin, 0);
 
     /* Loop through rows */
     for (int row = 0; row < M; row++)
@@ -81,11 +84,17 @@ void ref_cuda(float *MAT)
         #endif
     }
 
+    gettimeofday(&end, 0);
+    double time_parallel = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
+    printf("Time parallel: %.6e s\n", time_parallel);
+
     /* Copy back from device to host */
     cudaMemcpy(MAT, (void *) MATD, sizeof(float) * M * N, cudaMemcpyDeviceToHost);
 
     /* Free device memroy */
     cudaFree(MATD);
+    
+    
 }
 
 int main(void)
@@ -113,11 +122,11 @@ int main(void)
 
     /* Run parallel ref */
     printf("Running parallel . . .\n");
-    gettimeofday(&begin, 0);
+    // gettimeofday(&begin, 0);
     ref_cuda(MAT);
-    gettimeofday(&end, 0);
-    double time_parallel = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
-    print_mat(MAT);
+    // gettimeofday(&end, 0);
+    // double time_parallel = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
+    // print_mat(MAT);
 
     /* Run verification (if enabled) */
     #ifdef RUN_VERIF
@@ -127,7 +136,7 @@ int main(void)
     #endif
 
     printf("SERIAL TIME=%.6e s\n", time_serial);
-    printf("PARALL TIME=%.6e s\n", time_parallel);
+    // printf("PARALL TIME=%.6e s\n", time_parallel);
 
     return 0;
 }
