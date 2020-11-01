@@ -1,0 +1,2 @@
+nvcc ref.cu -o ref.out
+./ref.out

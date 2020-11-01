@@ -6,25 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 
-// #define RUN_VERIF
+#define RUN_VERIF
 // #define TEST_MAT
-// #define DEBUG_PRINT
-
-#ifdef TEST_MAT
-#define M 3
-#define N 4
-float MAT[M][N] = {
-    {2.0, 1.0, -1.0, 8},
-    {-3.0, -1.0, 2.0, -11},
-    {-2.0, 1.0, 2.0, -3}
-};
-float MAT_B[M][N] = {
-    {2.0, 1.0, -1.0, 8},
-    {-3.0, -1.0, 2.0, -11},
-    {-2.0, 1.0, 2.0, -3}
-};
-#else
+#define DEBUG_PRINT
 
 #ifndef M
 #define M 8
@@ -37,19 +23,19 @@ float MAT_B[M][N] = {
 float *MAT;
 float *MAT_B;
 
-#endif
-
 /* Array access macro */
 #define GET(A, row, col) A[row * N + col]
-#define MIN(A, B) (A > B) ? B : A
+#define MIN(A, B) ((A > B) ? B : A)
 
 /* Prints matrix */
 void print_mat(float *A)
 {
     #ifdef DEBUG_PRINT
-    for (int i = 0; i < MIN(M, 10); i++, printf("\n"))
-        for (int j = 0; j < MIN(N, 10); j++)
+    int i, j;
+    for (i = 0; i < MIN(M, 10); i++, printf("\n"))
+        for (j = 0; j < MIN(N, 10); j++)
         {
+            // printf("%d %d / %d %d\n", i, j, M, N);
             if (i == j) printf("\033[0;32m");
             printf("%6.1f", GET(A, i, j));
             if (i == j) printf("\033[0m");
