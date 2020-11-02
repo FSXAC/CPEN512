@@ -1,0 +1,2 @@
+#!/bin/zsh
+nvcc ref.cu -o ref.out -O3 -m64 -D M=$1 -D BLOCK_SIZE=$2 -D CUDA_ONLY

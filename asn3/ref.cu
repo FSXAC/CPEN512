@@ -140,12 +140,14 @@ int main(void)
     print_mat(MAT);
 
     /* Run single threaded */
+    #ifndef CUDA_ONLY
     printf("Running serial . . .\n");
     gettimeofday(&begin, 0);
     ref_old_noswap(MAT_B);
     gettimeofday(&end, 0);
     time_serial = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
     print_mat(MAT_B);
+    #endif
 
     /* Run parallel ref */
     printf("Running parallel . . .\n");
@@ -153,13 +155,18 @@ int main(void)
     double time_parallel = ref_cuda(MAT);
 
     /* Run verification (if enabled) */
+    #ifndef CUDA_ONLY
     #ifdef RUN_VERIF
     printf("Running verification . . .\n");
     int errors = verify_ref(MAT, MAT_B);
     printf("MISMATCH=%d\n", errors);
     #endif
+    #endif
 
+    #ifndef CUDA_ONLY
     printf("SERIAL TIME=%.6e s\n", time_serial);
+    #endif
+    
     printf("PARALL TIME=%.6e s\n", time_parallel);
 
     return 0;
