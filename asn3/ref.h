@@ -8,12 +8,14 @@
 #include <time.h>
 #include <sys/time.h>
 
-// #define RUN_VERIF
-// #define DEBUG_PRINT
-// #define DEBUG_GPU
+#define RUN_VERIF
+#define DEBUG_PRINT
+#define DEBUG_GPU
+
+#define BLOCK_SIZE 1
 
 #ifndef M
-#define M 4096
+#define M 8
 #endif 
 
 #ifndef N
@@ -250,6 +252,8 @@ void ref_old_noswap(float *A)
             h++;
             k++;
         }
+
+        // print_mat(A);
     }
 }
 
@@ -259,9 +263,9 @@ int nearlyEqual(float a, float b) {
 }
 
 #define PRINT_RED(X) printf("\033[0;31m%6.2f\033[0m", X);
-#define PRINT_GREEN(X) printf("\033[0;32m%6.2f\033[0m", X);
+// #define PRINT_GREEN(X) printf("\033[0;32m%6.2f\033[0m", X);
 // #define PRINT_RED(X) printf("%6.2f", X);
-// #define PRINT_GREEN(X) printf("%6.2", X);
+#define PRINT_GREEN(X) printf("%6.2f", X);
 
 /* This varifies the answer */
 /* A is to be tested, B is reference */

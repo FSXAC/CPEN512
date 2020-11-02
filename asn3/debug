@@ -1,4 +1,4 @@
 #!/bin/zsh
 nvcc ref.cu -o ref.out -O0 -g
-gdb ./ref.out --ex "r"
-# gdb ./ref.out -ex "b ref.cu:103" -ex "b ref.cu:129" -ex "r"
+# gdb ./ref.out --ex "b ref.cu:90" --ex "r" 
+gdb ./ref.out -ex "b ref.cu:107" -ex "b ref.cu:118" -ex "r"
