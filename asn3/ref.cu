@@ -9,7 +9,6 @@ void scale_row(float *MAT, int pivot)
         /* Assuming pivot col == pivot row always */
         int pivot_idx = pivot * N + pivot;
         int current_idx = pivot * N + pivot + tid;
-        // printf("tid %d, mod_index %d\n", tid, current_idx);
         float scale = MAT[pivot_idx];
         __syncthreads();
         MAT[current_idx] /= scale;
@@ -36,39 +35,33 @@ __global__
 void subtract_rows(float *MAT, int pivot)
 {
     int tid = blockIdx.y * gridDim.x + blockIdx.x * blockDim.x + threadIdx.x;
-    // int num_elements_remaining = (M - pivot)
-    // if (tid <)
 
     /* Index of element to be modified */
     int row = pivot + 1 + (tid / (N - pivot));
     int col = pivot + (tid % (N - pivot));
-    int idx = row * N + col;
 
-    /* Index of leading coefficient of current row */
-    int start_row = row;
-    int start_col = pivot;
-    int start_idx = start_row * N + start_col;
+    if (row < M && col < N)
+    {
+        int idx = row * N + col;
 
-    /* Index of pivot leading coefficient */
-    int pivot_row = pivot;
-    int pivot_col = pivot;
-    int pivot_idx = pivot_row * N + pivot_col;
+        /* Index of leading coefficient of current row */
+        int start_idx = row * N + pivot;
 
-    /* Index of pivot row element value of the same column */
-    int source_row = pivot;
-    int source_col = col;
-    int source_idx = source_row * N + source_col;
+        /* Index of pivot leading coefficient */
+        int pivot_idx = pivot * N + pivot;
 
-    /* Get scaling factor */
-    float f = MAT[start_idx] / MAT[pivot_idx];
+        /* Index of pivot row element value of the same column */
+        int source_idx = pivot * N + col;
 
-    /* Subtract */
-    MAT[idx] -= f * MAT[source_idx];
+        /* Get scaling factor */
+        float f = MAT[start_idx] / MAT[pivot_idx];
 
-    printf("%d,%d,%d\n", tid, row, col);
+        /* Subtract */
+        MAT[idx] -= f * MAT[source_idx];
+    }
 }
 
-void ref_cuda(float *MAT)
+double ref_cuda(float *MAT)
 {
 
     /* Allocate memory for the device */
@@ -97,11 +90,6 @@ void ref_cuda(float *MAT)
          * Normally we just do M / BLOCK_SIZE
          * But this is modified so that we always have at least 1 block
          */
-        // int elements_to_process = N;
-        // int num_blocks = (int) ceil((float) elements_to_process / BLOCK_SIZE);
-        // scale_row<<<num_blocks, BLOCK_SIZE>>>(MATD, row);
-        // cudaDeviceSynchronize();
-
         int elements_to_process = N - col;
         int num_blocks = (int) ceil((float) elements_to_process / BLOCK_SIZE);
         scale_row<<<num_blocks, BLOCK_SIZE>>>(MATD, row);
@@ -118,29 +106,22 @@ void ref_cuda(float *MAT)
         subtract_rows<<<num_blocks, BLOCK_SIZE>>>(MATD, row);
         cudaDeviceSynchronize();
 
-
-        // for (int subrow = row + 1; subrow < M; subrow++)
-        //     subtract_single_row<<<num_blocks, BLOCK_SIZE>>>(MATD, subrow, row);
-        // cudaDeviceSynchronize();
-
         #ifdef DEBUG_GPU
         printf("Eliminating rows after row %d\n", row);
         cudaMemcpy(MAT, (void *) MATD, sizeof(float) * M * N, cudaMemcpyDeviceToHost);
         print_mat(MAT);
         #endif
     }
-
     gettimeofday(&end, 0);
-    double time_parallel = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
-    printf("Time parallel: %.6e s\n", time_parallel);
-
+    
     /* Copy back from device to host */
     cudaMemcpy(MAT, (void *) MATD, sizeof(float) * M * N, cudaMemcpyDeviceToHost);
 
     /* Free device memroy */
     cudaFree(MATD);
-    
-    
+
+    double time_parallel = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
+    return time_parallel;
 }
 
 int main(void)
@@ -168,11 +149,8 @@ int main(void)
 
     /* Run parallel ref */
     printf("Running parallel . . .\n");
-    // gettimeofday(&begin, 0);
     ref_cuda(MAT);
-    // gettimeofday(&end, 0);
-    // double time_parallel = (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6;
-    // print_mat(MAT);
+    double time_parallel = ref_cuda(MAT);
 
     /* Run verification (if enabled) */
     #ifdef RUN_VERIF
@@ -182,7 +160,7 @@ int main(void)
     #endif
 
     printf("SERIAL TIME=%.6e s\n", time_serial);
-    // printf("PARALL TIME=%.6e s\n", time_parallel);
+    printf("PARALL TIME=%.6e s\n", time_parallel);
 
     return 0;
 }

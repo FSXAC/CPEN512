@@ -8,14 +8,14 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define RUN_VERIF
-#define DEBUG_PRINT
-#define DEBUG_GPU
+// #define RUN_VERIF
+// #define DEBUG_PRINT
+// #define DEBUG_GPU
 
-#define BLOCK_SIZE 1
+#define BLOCK_SIZE 1024
 
 #ifndef M
-#define M 8
+#define M 4096
 #endif 
 
 #ifndef N
