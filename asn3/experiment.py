@@ -53,6 +53,7 @@ if __name__ == '__main__':
             statistics.median(serial_result),
             statistics.median(parallel_result)
         )
+        print(results_mat[n])
     
     # Block size test
     for bs in BLOCK_SIZES:

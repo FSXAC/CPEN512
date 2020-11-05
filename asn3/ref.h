@@ -8,7 +8,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-// #define RUN_VERIF
+#define RUN_VERIF
 // #define DEBUG_PRINT
 // #define DEBUG_GPU
 
