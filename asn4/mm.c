@@ -17,27 +17,46 @@ double mm_vbx(float *A, float *B, float *C, int n)
         4,      /* fxp byte frac bits */
         0,      /* unpopulated ALU lanes */
         0       /* unpopulated multiplier lanes */
-    )
+    );
 #endif
 
 	/* Allocate vectors on the scratchpad */
-	vbx_word_t* a = vbx_sp_malloc(N * N * sizeof(vbx_word_t));
-	vbx_word_t* b = vbx_sp_malloc(N * N * sizeof(vbx_word_t));
-	vbx_word_t* c = vbx_sp_malloc(N * N * sizeof(vbx_word_t));
+    const int MAT_SIZE = N * N * sizeof(int);
+	int *a = vbx_sp_malloc(MAT_SIZE);
+	int *b = vbx_sp_malloc(MAT_SIZE);
+	int *c = vbx_sp_malloc(MAT_SIZE);
+
+    /* Move data to scratchpad */
+    vbx_dcache_flush(a, MAT_SIZE);
+    vbx_dcache_flush(b, MAT_SIZE);
+    // vbx_dcache_flush(c, MAT_SIZE);
+    vbx_dma_to_vector(a, A, MAT_SIZE);
+    vbx_dma_to_vector(b, B, MAT_SIZE);
+
+    print_mat(A);
+    for(int i=0; i< N * N; i++ ) {
+		printf( "%4d", a[i] );
+	}
+	printf( "\n" );
+
+    vbx_set_vl(N, N);
+    vbx_set_2D(N, N, N);
+    vbx(VVW, VMUL, c, a, b);
+
+    // vbw_mtx_mm_ext(c, a, N, N, b, N, N);
 
 	//Set vector length, then compute 4*[1,2,3,...,10]
-	vbx_set_vl(num_elements);
-	vbx(SEW, VADD, a, 2, NONE); //a = [1,2,3,...,10]
-	vbx(SVW, VMOV, b, 4, NONE); //b = [4,4,....,4]
-	vbx(VVW, VMUL, c, a, b); //c = a * b
+	// vbx_set_vl(N * N);
+	// vbx(SEW, VADD, a, 2, NONE); //a = [1,2,3,...,10]
+	// vbx(SVW, VMOV, b, 4, NONE); //b = [4,4,....,4]
+	// vbx(VVW, VMUL, c, a, b); //c = a * b
 
 	//wait for all vector instructions to finish
 	vbx_sync();
 
 	//print out vector c
-	int i;
-	for( i=0; i<num_elements; i++ ) {
-		printf( "%6d ", a[i] );
+	for(int i=0; i< N * N; i++ ) {
+		printf( "%4d", a[i] );
 	}
 	printf( "\n" );
 	// vbxsim_print_stats();
@@ -53,10 +72,10 @@ int main(void)
 
     /* Initalize matrices */
     srand(0);
-    A = (float *) malloc(sizeof(float) * N * N);
-    B = (float *) malloc(sizeof(float) * N * N);
-    C = (float *) malloc(sizeof(float) * N * N);
-    C_serial = (float *) malloc(sizeof(float) * N * N);
+    A = (int *) malloc(sizeof(int) * N * N);
+    B = (int *) malloc(sizeof(int) * N * N);
+    C = (int *) malloc(sizeof(int) * N * N);
+    C_serial = (int *) malloc(sizeof(int) * N * N);
     init_array(A);
     init_array(B);
 

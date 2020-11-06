@@ -16,17 +16,17 @@
 #endif
 
 /* Matrices */
-float *A;
-float *B;
-float *C;
-float *C_serial;
+int *A;
+int *B;
+int *C;
+int *C_serial;
 
 /* Array access macro */
 #define GET(A, row, col) A[row * N + col]
 #define MIN(A, B) ((A > B) ? B : A)
 
 /* Prints matrix */
-void print_mat(float *A)
+void print_mat(int *A)
 {
 #ifdef DEBUG_PRINT
     int i, j;
@@ -35,7 +35,7 @@ void print_mat(float *A)
         {
             if (i == j)
                 printf("\033[0;32m");
-            printf("%6.1f", GET(A, i, j));
+            printf("%4d", GET(A, i, j));
             if (i == j)
                 printf("\033[0m");
         }
@@ -45,18 +45,15 @@ void print_mat(float *A)
 }
 
 /* This initializes the A array with size MxN with random integers casted as float */
-void init_array(float *A)
+void init_array(int *A)
 {
     for (int row = 0; row < N; row++)
         for (int col = 0; col < N; col++)
-        {
-            /* Make sure (1,1) element is never 0 */
-            GET(A, row, col) = (float)0.1 * (rand() % 20 - 10);
-        }
+            GET(A, row, col) = rand() % 3 - 1;
 }
 
 /* This performs the basic tiled matrix multiplication */
-void mm(float *A, float *B, float *C, int n, int tile_size)
+void mm(int *A, int *B, int *C, int n, int tile_size)
 {
     int II2, II3, i1, i2, i3;
     for (II2 = 0; II2 < n; II2 += tile_size)
@@ -67,20 +64,14 @@ void mm(float *A, float *B, float *C, int n, int tile_size)
                         GET(C, i1, i3) += GET(A, i1, i2) * GET(B, i2, i3);
 }
 
-/* Floating point comparison */
-int nearlyEqual(float a, float b)
-{
-    return (fabs(a - b) < 0.005);
-}
-
 // #define PRINT_RED(X) printf("\033[0;31m%6.2f\033[0m", X);
 // #define PRINT_GREEN(X) printf("\033[0;32m%6.2f\033[0m", X);
-#define PRINT_RED(X) printf("%6.2f", X);
-#define PRINT_GREEN(X) printf("%6.2f", X);
+#define PRINT_RED(X) printf("%4d", X);
+#define PRINT_GREEN(X) printf("%4d", X);
 
 /* This varifies the answer */
 /* A is to be tested, B is reference */
-int verify_mm(float *A, float *B)
+int verify_mm(int *A, int *B)
 {
     /* Print diff and count errors */
     int errors = 0;
@@ -88,7 +79,7 @@ int verify_mm(float *A, float *B)
     {
         for (int j = 0; j < N; j++)
         {
-            if (!nearlyEqual(GET(A, i, j), GET(B, i, j)))
+            if (GET(A, i, j) == GET(B, i, j))
             {
 #ifdef DEBUG_PRINT
                 PRINT_RED(GET(A, i, j));
@@ -105,7 +96,7 @@ int verify_mm(float *A, float *B)
             else
             {
 #ifdef DEBUG_PRINT
-                printf("%6.2f", GET(A, i, j));
+                printf("%4d", GET(A, i, j));
 #endif
             }
         }
@@ -114,7 +105,7 @@ int verify_mm(float *A, float *B)
 #ifdef DEBUG_PRINT
         printf("\t");
         for (int j = 0; j < N; j++)
-            printf("%6.2f", GET(B, i, j));
+            printf("%4d", GET(B, i, j));
         printf("\n");
 #endif
     }
