@@ -1,24 +1,29 @@
 #include <stdio.h>
 #include "vbx.h"
-#include "ref.h"
-
-const int num_elements=10;
+#include "mm.h"
 
 #define NONE 0
 
-int main()
+double mm_vbx(float *A, float *B, float *C, int n)
 {
-
 #if VBX_SIMULATOR==1
-	//initialize with 4 lanes,and 64kb of sp memory
-	//word,half,byte fraction bits 16,15,4 respectively
-	vbxsim_init( 4, 64, 256,6,5, 4 , 0, 0);
+    /* Initialize the simulator */
+    vbxsim_init(
+        4,      /* number of lanes */
+        64,     /* scratchpad memory capacity (kB) */
+        256,    /* maximum masked waves */
+        6,      /* fxp word frac bits */
+        5,      /* fxp half frac bits */
+        4,      /* fxp byte frac bits */
+        0,      /* unpopulated ALU lanes */
+        0       /* unpopulated multiplier lanes */
+    )
 #endif
 
-	//Allocate vectors in scratchpad
-	vbx_word_t* a = vbx_sp_malloc( num_elements*sizeof(vbx_word_t) );
-	vbx_word_t* b = vbx_sp_malloc( num_elements*sizeof(vbx_word_t) );
-	vbx_word_t* c = vbx_sp_malloc( num_elements*sizeof(vbx_word_t) );
+	/* Allocate vectors on the scratchpad */
+	vbx_word_t* a = vbx_sp_malloc(N * N * sizeof(vbx_word_t));
+	vbx_word_t* b = vbx_sp_malloc(N * N * sizeof(vbx_word_t));
+	vbx_word_t* c = vbx_sp_malloc(N * N * sizeof(vbx_word_t));
 
 	//Set vector length, then compute 4*[1,2,3,...,10]
 	vbx_set_vl(num_elements);
@@ -41,46 +46,35 @@ int main()
 
 int main(void)
 {
-
-}
-
-int main(void)
-{
     /* Time keeping */
     struct timeval begin, end;
     double time_serial;
+    double time_parallel;
 
-    /* Malloc matrices */
-    MAT   = (float *) malloc(sizeof(float) * N * M);
-    MAT_B = (float *) malloc(sizeof(float) * N * M);
-
-    /* Initialize both matrices */
-    printf("(M x N)=(%d x %d)\n", M, N);
-    init_array(MAT);
-    memcpy(MAT_B, MAT, sizeof(float) * N * M);
-    print_mat(MAT);
+    /* Initalize matrices */
+    srand(0);
+    A = (float *) malloc(sizeof(float) * N * N);
+    B = (float *) malloc(sizeof(float) * N * N);
+    C = (float *) malloc(sizeof(float) * N * N);
+    C_serial = (float *) malloc(sizeof(float) * N * N);
+    init_array(A);
+    init_array(B);
 
     /* Run serial */
+    mm(A, B, C_serial, N, 8);
 
     /* Run parallel */
-    printf("Running parallel . . .\n");
-    ref_cuda(MAT);
-    double time_parallel = ref_cuda(MAT);
+    time_parallel = mm_vbx(A, B, C, N);
 
-    /* Run verification (if enabled) */
-    #ifndef CUDA_ONLY
+    /* Verify */
     #ifdef RUN_VERIF
-    printf("Running verification . . .\n");
-    int errors = verify_ref(MAT, MAT_B);
-    printf("MISMATCH=%d\n", errors);
-    #endif
+    int errors = verify_mm(C, C_serial);
+    printf("Mismatches: %d/%d\n", errors, N * N);
     #endif
 
-    #ifndef CUDA_ONLY
-    printf("SERIAL TIME=%.6e s\n", time_serial);
-    #endif
-    
-    printf("PARALL TIME=%.6e s\n", time_parallel);
+    /* Print results */
+    printf("Serial time: %.6e s\n", time_serial);
+    printf("Parallel time: %.6e s\n", time_parallel);
 
     return 0;
 }

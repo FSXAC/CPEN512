@@ -12,11 +12,14 @@
 #define DEBUG_PRINT
 
 #ifndef N
-#define N 1024
+#define N 3
 #endif
 
-float *MAT;
-float *MAT_B;
+/* Matrices */
+float *A;
+float *B;
+float *C;
+float *C_serial;
 
 /* Array access macro */
 #define GET(A, row, col) A[row * N + col]
@@ -48,7 +51,7 @@ void init_array(float *A)
         for (int col = 0; col < N; col++)
         {
             /* Make sure (1,1) element is never 0 */
-            GET(A, row, col) = (float)0.1 * (rand() % 400);
+            GET(A, row, col) = (float)0.1 * (rand() % 20 - 10);
         }
 }
 
@@ -77,24 +80,10 @@ int nearlyEqual(float a, float b)
 
 /* This varifies the answer */
 /* A is to be tested, B is reference */
-int verify_ref(float *A, float *B)
+int verify_mm(float *A, float *B)
 {
-    int done = 0;
-    for (int i = 1; i < N && !done; i++)
-    {
-        for (int j = 0; j < i && !done; j++)
-        {
-            if (GET(A, i, j) != 0.0)
-            {
-                printf("Not in REF!\n");
-                done = 1;
-            }
-        }
-    }
-
     /* Print diff and count errors */
     int errors = 0;
-
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)

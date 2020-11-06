@@ -20,6 +20,12 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Make asn4",
+            "type": "shell",
+            "command": "cd asn4 && make",
+            "problemMatcher": []
         }
     ],
     "version": "2.0.0"
