@@ -12,14 +12,14 @@
 #define PI 3.141592653589723234
 #define RAD(deg) (deg * PI / 180)
 
-#define IMG_SIZE 256
+#define IMG_SIZE 1024
 
 #if IMG_SIZE == 256
 #define MAX_R 362
 #define IMG_FILE "img/ipad256.jpg"
 #elif IMG_SIZE == 512
 #define MAX_R 724
-#define IMG_FILE "img/ipad512.jpg"
+#define IMG_FILE "img/testx.jpg"
 #elif IMG_SIZE == 1024
 #define MAX_R 1448
 #define IMG_FILE "img/ipad1024.jpg"
@@ -31,7 +31,7 @@
 #define MIN_R -MAX_R
 #define MAX_THETA RAD(89)
 #define MIN_THETA RAD(-89)
-#define THETA_STEPS 512
+#define THETA_STEPS MAX_R
 #define D_THETA (MAX_THETA - MIN_THETA) / THETA_STEPS
 
 // Macro to access array easier
@@ -67,13 +67,15 @@ int main() {
     /* Set up accumulator */
     int acc_width = THETA_STEPS;
     int acc_height = 2 * MAX_R;
-    uint32_t *acc = (uint32_t *) malloc(sizeof(uint32_t) * acc_height * acc_width);
+    float *acc = (float *) malloc(sizeof(float) * acc_height * acc_width);
 
 
     // For each radius
+    printf("transforming to %d by %d acc...\n", acc_width, acc_height);
     for (int acc_row_idx = 0; acc_row_idx < acc_height; acc_row_idx++)
     {
         int r = acc_row_idx + MIN_R;
+        if (r % 256 == 0) printf("r=%d\n", r);
 
         // FOr each theta
         for (int acc_col_idx = 0; acc_col_idx < acc_width; acc_col_idx++)
@@ -103,7 +105,8 @@ int main() {
     }
 
     /* Find maximum value in accumulator */
-    uint32_t max = 0;
+    printf("normalizing...");
+    float max = 0;
     for (int row = 0; row < acc_height; row++)
     {
         for (int col = 0; col < acc_width; col++)
@@ -114,20 +117,22 @@ int main() {
             }
         }
     }
-    printf("maximum value in acc: %d", max);
+    printf("maximum value in acc: %.1f\n", max);
 
     /* Normalized accumulator */
+    printf("copying output...\n");
     uint8_t* out_acc = (uint8_t *) malloc(sizeof(uint8_t) * acc_height * acc_width);
     for (int row = 0; row < acc_height; row++)
     {
         for (int col = 0; col < acc_width; col++)
         {
-            GETACC(out_acc, row, col) = (uint8_t) GETACC(acc, row, col) * (255.0 / max);
+            GETACC(out_acc, row, col) = 255 * (GETACC(acc, row, col) / max);
         }
     }
 
     /* Write out image to file */
-    stbi_write_bmp("out.bmp", acc_width, acc_height, 1, out_acc);
+    // stbi_write_bmp("out.bmp", acc_width, acc_height, 1, out_acc);
+    stbi_write_jpg("out.jpg", acc_width, acc_height, 1, out_acc, 90);
 
     /* Close image */
     stbi_image_free(bin_image);
