@@ -19,11 +19,13 @@
 #define IMG_FILE "img/ipad256.jpg"
 #elif IMG_SIZE == 512
 #define MAX_R 724
+#define IMG_FILE "img/ipad512.jpg"
 #elif IMG_SIZE == 1024
 #define MAX_R 1448
+#define IMG_FILE "img/ipad1024.jpg"
 #else
-// Maximum radius (diagonal to diagnal of 2048 by 2048 image)
 #define MAX_R 2896
+#define IMG_FILE "img/ipad2048.jpg"
 #endif
 
 #define MIN_R -MAX_R
@@ -35,6 +37,9 @@
 // Macro to access array easier
 #define GETIM(img, x, y) img[y * IMG_SIZE + x]
 #define GETACC(acc, row, col) acc[row * THETA_STEPS + col]
+
+// Bound check
+#define IN_BOUND(x, y) (x < IMG_SIZE && x >= 0 && y < IMG_SIZE && y >= 0)
 
 int main() {
 
@@ -48,6 +53,16 @@ int main() {
         printf("Error! invalid image size\n");
         return 1;
     }
+
+    /* Create threshold image */
+    for (int row = 0; row < IMG_SIZE; row++)
+    {
+        for (int col = 0; col < IMG_SIZE; col++)
+        {
+            GETIM(bin_image, row, col) = GETIM(bin_image, row, col) > 50 ? 1 : 0;
+        }
+    }
+
 
     /* Set up accumulator */
     int acc_width = THETA_STEPS;
@@ -71,7 +86,8 @@ int main() {
                 for (int x = 0; x < IMG_SIZE; x++)
                 {
                     int y = (r - cos(theta) * x) / sin(theta);
-                    GETACC(acc, acc_row_idx, acc_col_idx) += GETIM(bin_image, x, y);
+                    if (IN_BOUND(x, y))
+                        GETACC(acc, acc_row_idx, acc_col_idx) += GETIM(bin_image, x, y);
                 }
             }
             else
@@ -79,7 +95,8 @@ int main() {
                 for (int y = 0; y < IMG_SIZE; y++)
                 {
                     int x = (r - sin(theta) * y) / cos(theta);
-                    GETACC(acc, acc_row_idx, acc_col_idx) += GETIM(bin_image, x, y);
+                    if (IN_BOUND(x, y))
+                        GETACC(acc, acc_row_idx, acc_col_idx) += GETIM(bin_image, x, y);
                 }
             }
         }
@@ -92,9 +109,13 @@ int main() {
         for (int col = 0; col < acc_width; col++)
         {
             if (GETACC(acc, row, col) > max)
+            {
                 max = GETACC(acc, row, col);
+                printf("New max %d at %d, %d", max, row, col);
+            }
         }
     }
+    printf("maximum value in acc: %d", max);
 
     /* Normalized accumulator */
     uint8_t* out_acc = (uint8_t *) malloc(sizeof(uint8_t) * acc_height * acc_width);
