@@ -111,7 +111,6 @@ int main() {
             if (GETACC(acc, row, col) > max)
             {
                 max = GETACC(acc, row, col);
-                printf("New max %d at %d, %d", max, row, col);
             }
         }
     }
@@ -123,12 +122,12 @@ int main() {
     {
         for (int col = 0; col < acc_width; col++)
         {
-            GETACC(out_acc, row, col) = GETACC(acc, row, col) / max;
+            GETACC(out_acc, row, col) = (uint8_t) GETACC(acc, row, col) * (255.0 / max);
         }
     }
 
     /* Write out image to file */
-    stbi_write_jpg("out.jpg", acc_width, acc_height, 1, out_acc, 85);
+    stbi_write_bmp("out.bmp", acc_width, acc_height, 1, out_acc);
 
     /* Close image */
     stbi_image_free(bin_image);
