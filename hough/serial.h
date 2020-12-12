@@ -3,8 +3,11 @@
 
 #include "common.h"
 
-void hough_serial(uint8_t *img, float *acc, int acc_width, int acc_height)
+double hough_serial(uint8_t *img, float *acc, int acc_width, int acc_height)
 {
+    struct timeval begin, end;
+    gettimeofday(&begin, 0);
+
     /* Iterate through each pixel in the accumulator
      * which corresponds to each (rho, theta) value
      */
@@ -22,7 +25,7 @@ void hough_serial(uint8_t *img, float *acc, int acc_width, int acc_height)
                 {
                     int y = (r - cos(theta) * x) / sin(theta);
                     if (IN_BOUND(x, y))
-                        GETACC(acc, row, col) += GETIM(bin_image, x, y);
+                        GETACC(acc, row, col) += GETIM(img, x, y) > THRESHOLD;
                 }
             }
             else
@@ -31,11 +34,14 @@ void hough_serial(uint8_t *img, float *acc, int acc_width, int acc_height)
                 {
                     int x = (r - sin(theta) * y) / cos(theta);
                     if (IN_BOUND(x, y))
-                        GETACC(acc, row, col) += GETIM(bin_image, x, y);
+                        GETACC(acc, row, col) += GETIM(img, x, y) > THRESHOLD;
                 }
             }
         }
     }
+
+    gettimeofday(&end, 0);
+    return TIME(begin, end);
 }
 
 #endif

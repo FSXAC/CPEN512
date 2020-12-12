@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <sys/time.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -15,7 +16,8 @@
 #define PI 3.141592653589723234
 #define RAD(deg) (deg * PI / 180)
 
-#define IMG_SIZE 1024
+#define IMG_SIZE 512
+#define THRESHOLD 50
 
 #if IMG_SIZE == 256
 #define MAX_R 362
@@ -44,13 +46,8 @@
 // Bound check
 #define IN_BOUND(x, y) (x < IMG_SIZE && x >= 0 && y < IMG_SIZE && y >= 0)
 
-// Threshold image to (0, 1)
-void threshold_image(uint8_t* img, int threshold)
-{
-    for (int row = 0; row < IMG_SIZE; row++)
-        for (int col = 0; col < IMG_SIZE; col++)
-            GETIM(img, row, col) = GETIM(img, row, col) > threshold ? 1 : 0;
-}
+// Time measuring
+#define TIME(begin, end) ((end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec) * 1e-6)
 
 // Normalize image to (0, 255)
 float normalize_image(float *in, uint8_t *out, int w, int h)
