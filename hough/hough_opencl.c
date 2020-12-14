@@ -6,25 +6,12 @@
 #include <CL/cl.h>
 #endif
 
-#define MAX_SOURCE_SIZE (0x100000)
+#define KERNEL_FILE "hough_opencl_kernel.cl"
+#define KERNEL_FUNC "acc_vote"
 
 double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
 {
     struct timeval begin, end;
-
-    /* Open and load kernel file */    
-    FILE *fp = fopen("hough_opencl_kernel.cl", "r");
-    if (fp == NULL) 
-    {
-        fprintf(stderr, "Failed to load kernel.\n");
-        exit(1);
-    }
-
-
-    /* Load bytes */
-    char *source_str = (char *) malloc(MAX_SOURCE_SIZE);
-    size_t source_size = fread(source_str, 1, MAX_SOURCE_SIZE, fp);
-    fclose(fp);
 
     /* Get platform and device information */
     cl_platform_id platform_id = NULL;
@@ -49,10 +36,29 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     cl_mem acc_height_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int), NULL, &ret);
 
     /* Create program from loaded kernel source */
+    /* Open and load kernel file */    
+    FILE *fp = fopen(KERNEL_FILE, "r");
+    if (fp == NULL) 
+    {
+        fprintf(stderr, "Failed to load kernel.\n");
+        exit(1);
+    }
+
+    /* Load kernel source bytes */
+    fseek(fp, 0, SEEK_END);
+    size_t source_size = ftell(fp);
+    rewind(fp);
+    char *source_str = (char *) malloc(source_size + 1);
+    source_str[source_size] = '\0';
+    fread(source_str, sizeof(char), source_size, fp);
+    fclose(fp);
+
+    /* Use program souce to make program */
     cl_program program = clCreateProgramWithSource(context, 1, (const char **) &source_str, (const size_t *) &source_size, &ret);
 
     /* Build program */
-    ret = clBuildProgram(program, 1, &device_id, "-I ./", NULL, NULL);
+    // ret = clBuildProgram(program, 1, &device_id, "-I ./", NULL, NULL);
+    ret = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
 
     /* Create kernel */
     cl_kernel kernel = clCreateKernel(program, "hough_opencl", &ret);
@@ -66,10 +72,13 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     /* Start clock */
     gettimeofday(&begin, 0);
 
+    /* Find local and global size */
+    size_t local_size;
+    ret = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL);
+    size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
+
     /* Execute kernel */
-    size_t glboal_item_size = acc_width * acc_height;
-    size_t local_item_size = 64;
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &glboal_item_size, &local_item_size, 0, NULL, NULL);
+    ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
 
     /* Stop clock */
     gettimeofday(&end, 0);
