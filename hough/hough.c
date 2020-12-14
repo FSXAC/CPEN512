@@ -18,6 +18,7 @@ int main() {
     threshold_image(bin_image, 50);
 
     /* Set up accumulator */
+    /* Using float because int could run into overflow issues */
     int acc_width = THETA_STEPS;
     int acc_height = 2 * MAX_R;
     float *acc = (float *) malloc(sizeof(float) * acc_height * acc_width);
@@ -37,6 +38,10 @@ int main() {
 
     /* Close image */
     stbi_image_free(bin_image);
+
+    /* Free memory */
+    free(out_acc);
+    free(acc);
 
     return 0;
 }
