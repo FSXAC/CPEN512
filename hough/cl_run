@@ -1,0 +1,1 @@
+gcc hough_opencl.c -o hough_opencl.out -framework OpenCL -m64 -march=native -O2
