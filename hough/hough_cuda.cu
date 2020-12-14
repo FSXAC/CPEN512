@@ -57,7 +57,7 @@ double hough_cuda(uint8_t *img, float *acc, int acc_width, int acc_height)
     cudaDeviceSynchronize();
 
     /* Get the output */
-    cudaMemcpy(acc, (void *) device_acc, sizeof(float) * acc_width, acc_height, cudaMemcpyDeviceToHost);
+    cudaMemcpy(acc, (void *) device_acc, sizeof(float) * acc_width * acc_height, cudaMemcpyDeviceToHost);
 
     /* Free device memory */
     cudaFree(device_img);
