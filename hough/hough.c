@@ -14,9 +14,6 @@ int main() {
         return 1;
     }
 
-    /* Create threshold image */
-    threshold_image(bin_image, 50);
-
     /* Set up accumulator */
     /* Using float because int could run into overflow issues */
     int acc_width = THETA_STEPS;
