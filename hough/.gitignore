@@ -1,3 +1,6 @@
 .vscode/*
 hough
 out.*
+out_opencl.*
+out_cuda.*
+*.out
