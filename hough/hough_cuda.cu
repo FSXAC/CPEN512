@@ -98,7 +98,7 @@ int main() {
     printf("maximum value in acc: %.1f\n", max);
 
     /* Write out image to file */
-    stbi_write_jpg("out.jpg", acc_width, acc_height, 1, out_acc, 90);
+    stbi_write_jpg("out_cuda.jpg", acc_width, acc_height, 1, out_acc, 90);
 
     /* Close image */
     stbi_image_free(bin_image);
