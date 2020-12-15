@@ -1,5 +1,13 @@
 /* Keep -I option (apparently) */
 /* https://stackoverflow.com/questions/30514189/how-to-include-header-correctly-in-the-opencl-kernel */
+
+/* Also every time the main program compiles for some reason on Linux + Nvidia 
+ * This kernel needs to be modified a bit (because I think there's some pre-compiled caching)
+ * which causes constants such as image size, boundaries to be out-of-date and cause segment fault issues
+ *
+ * Also found https://forums.developer.nvidia.com/t/disable-caching-by-the-opencl-compiler/23752/2
+ * do export CUDA_DISABLE_CACHE=1 to disable caching of kernel code
+ */
 #include "params.h"
 
 __kernel void acc_vote(
