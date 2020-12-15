@@ -1,1 +1,0 @@
-gcc hough.c -o hough -O3 -m64 -march=native && ./hough

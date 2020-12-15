@@ -1,5 +1,4 @@
 #include "common.h"
-#include "serial.h"
 
 double hough_serial(uint8_t *img, float *acc, int acc_width, int acc_height)
 {
