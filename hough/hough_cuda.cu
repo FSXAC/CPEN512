@@ -42,7 +42,7 @@ double hough_cuda(uint8_t *img, float *acc, int acc_width, int acc_height)
     // gettimeofday(&begin, 0);
     
     /* allocate device memory */
-    float *device_img;
+    uint8_t *device_img;
     float *device_acc;
     
     cudaMalloc(&device_img, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE);
