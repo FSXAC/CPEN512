@@ -1,7 +1,10 @@
 #define PI 3.141592653589723234
 #define RAD(deg) (deg * PI / 180)
 
+#ifndef IMG_SIZE
 #define IMG_SIZE 2048
+#endif
+
 #define THRESHOLD 50
 
 #if IMG_SIZE == 256
