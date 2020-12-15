@@ -53,17 +53,17 @@ double hough_cuda(uint8_t *img, float *acc, int acc_width, int acc_height)
     
     gettimeofday(&begin, 0);
     int num_output_elements = acc_width * acc_height;
-    acc_vote<<<num_output_elements, BLOCK_SIZE>>>(img, acc, acc_width, acc_height);
+    acc_vote<<<num_output_elements, BLOCK_SIZE>>>(device_img, device_acc, acc_width, acc_height);
     cudaDeviceSynchronize();
 
     /* Get the output */
     cudaMemcpy(acc, (void *) device_acc, sizeof(float) * acc_width * acc_height, cudaMemcpyDeviceToHost);
+    gettimeofday(&end, 0);
 
     /* Free device memory */
     cudaFree(device_img);
     cudaFree(device_acc);
 
-    gettimeofday(&end, 0);
     return TIME(begin, end);
 }
 
