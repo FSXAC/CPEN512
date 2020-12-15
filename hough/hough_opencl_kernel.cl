@@ -26,6 +26,7 @@ __kernel void acc_vote(
     /* If within bound of the output space */
     if (row < acc_height && col < acc_width)    
     {
+        //GETACC(acc, row, col) = (row / 16 % 2) * (col);
         int r = row + MIN_R;
         float theta = MIN_THETA + (D_THETA * col);
         

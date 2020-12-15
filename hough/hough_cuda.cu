@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define BLOCK_SIZE 1024
+#define BLOCK_SIZE 128
 
 __global__
 void acc_vote(uint8_t *img, float *acc, int acc_width, int acc_height)
