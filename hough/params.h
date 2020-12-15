@@ -2,12 +2,15 @@
 #define RAD(deg) (deg * PI / 180)
 
 #ifndef IMG_SIZE
-#define IMG_SIZE 2048
+#define IMG_SIZE 256
 #endif
 
 #define THRESHOLD 50
 
-#if IMG_SIZE == 256
+#if IMG_SIZE == 16
+#define MAX_R 20
+#define IMG_FILE "img/ipad16.jpg"
+#elif IMG_SIZE == 256
 #define MAX_R 362
 #define IMG_FILE "img/ipad256.jpg"
 #elif IMG_SIZE == 512

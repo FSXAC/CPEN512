@@ -15,10 +15,6 @@ __kernel void acc_vote(
     int row = id / acc_width;
     int col = id % acc_width;
 
-    #ifdef DEBUG
-    printf("%d %d %d %d\n", id, row, col, acc_width);
-    #endif
-
     /* If within bound of the output space */
     if (row < acc_height && col < acc_width)    
     {

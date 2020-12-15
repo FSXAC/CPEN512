@@ -55,16 +55,6 @@ void hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     /* Build program */
     // ret = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
     RC(clBuildProgram(program, 1, &device_id, "-I ./", NULL, NULL));
-    
-    /* Create kernel */
-    cl_kernel kernel = clCreateKernel(program, KERNEL_FUNC, &ret);
-    RETURN_CHECK
-
-    /* Find local and global size */
-    size_t local_size;
-    RC(clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL));
-    size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
-    printf("Local size %zu, global size %zu\n", local_size, global_size);
 
     /* Create memory buffer on device for the required I/O */
     cl_mem img_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, NULL, &ret);
@@ -74,17 +64,31 @@ void hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     /* Copy input data to input buffer */
     RC(clEnqueueWriteBuffer(command_queue, img_mem_obj, CL_TRUE, 0, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, img, 0, NULL, NULL));
 
+    /* Create kernel */
+    cl_kernel kernel = clCreateKernel(program, KERNEL_FUNC, &ret);
+    RETURN_CHECK
+
     /* Set kernel arguments */
     RC(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &img_mem_obj));
     RC(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &acc_mem_obj));
     RC(clSetKernelArg(kernel, 2, sizeof(int), &acc_width));
     RC(clSetKernelArg(kernel, 3, sizeof(int), &acc_height));
 
+    /* Find local and global size */
+    // size_t local_size = 128;
+    size_t local_size;
+    RC(clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL));
+    size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
+    // size_t global_size = 2 * local_size;
+    printf("Local size %zu, global size %zu\n", local_size, global_size);
+
+
     /* Begin time */
     gettimeofday(&t_begin, 0);
 
     /* Execute kernel */
     RC(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL));
+    clFinish(command_queue);    
 
     /* Stop clock */
     gettimeofday(&t_end, 0);
