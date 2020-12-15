@@ -16,7 +16,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb"
-            "preLaunchTask": "OpenCL Build"
+            // "preLaunchTask": "OpenCL Build"
         }
     ]
 }

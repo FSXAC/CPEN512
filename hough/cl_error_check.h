@@ -10,7 +10,7 @@ if (ret == CL_BUILD_PROGRAM_FAILURE) \
 } \
 else if (ret != 0) \
 { \
-    fprintf(stderr, "%d\n", ret); \
+    fprintf(stderr, "Error: %d\n", ret); \
     exit(ret); \
 }
 
