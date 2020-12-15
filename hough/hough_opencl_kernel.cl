@@ -1,12 +1,12 @@
 /* Keep -I option (apparently) */
 /* https://stackoverflow.com/questions/30514189/how-to-include-header-correctly-in-the-opencl-kernel */
-#include "common.h"
+#include "params.h"
 
 __kernel void acc_vote(
-    __global const uint8_t *img,
+    __global const unsigned char *img,
     __global float *acc,
-    __global int acc_width,
-    __global int acc_height
+    int acc_width,
+    int acc_height
     )
 {
     /* Get global id (like thread id) */
@@ -14,6 +14,10 @@ __kernel void acc_vote(
 
     int row = id / acc_width;
     int col = id % acc_width;
+
+    #ifdef DEBUG
+    printf("%d %d %d %d\n", id, row, col, acc_width);
+    #endif
 
     /* If within bound of the output space */
     if (row < acc_height && col < acc_width)    

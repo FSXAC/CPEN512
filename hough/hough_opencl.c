@@ -9,6 +9,8 @@
 #define KERNEL_FILE "hough_opencl_kernel.cl"
 #define KERNEL_FUNC "acc_vote"
 
+#include "cl_error_check.h"
+
 double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
 {
     struct timeval begin, end;
@@ -28,12 +30,6 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
 
     /* Create command queue */
     cl_command_queue command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
-
-    /* Create memory buffer on device for the required I/O */
-    cl_mem img_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, NULL, &ret);
-    cl_mem acc_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * acc_width * acc_height, NULL, &ret);
-    cl_mem acc_width_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int), NULL, &ret);
-    cl_mem acc_height_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int), NULL, &ret);
 
     /* Create program from loaded kernel source */
     /* Open and load kernel file */    
@@ -57,46 +53,54 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     cl_program program = clCreateProgramWithSource(context, 1, (const char **) &source_str, (const size_t *) &source_size, &ret);
 
     /* Build program */
-    // ret = clBuildProgram(program, 1, &device_id, "-I ./", NULL, NULL);
-    ret = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-
+    // ret = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+    RC(clBuildProgram(program, 1, &device_id, "-I ./", NULL, NULL));
+    
     /* Create kernel */
-    cl_kernel kernel = clCreateKernel(program, "hough_opencl", &ret);
+    cl_kernel kernel = clCreateKernel(program, KERNEL_FUNC, &ret);
+    RETURN_CHECK
+
+    /* Create memory buffer on device for the required I/O */
+    cl_mem img_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, NULL, &ret);
+    cl_mem acc_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * acc_width * acc_height, NULL, &ret);
+
+    /* Copy input data to input buffer */
+    RC(clEnqueueWriteBuffer(command_queue, img_mem_obj, CL_TRUE, 0, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, img, 0, NULL, NULL));
 
     /* Set kernel arguments */
-    ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &img_mem_obj);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &acc_mem_obj);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &acc_width_mem_obj);
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &acc_height_mem_obj);
+    RC(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &img_mem_obj));
+    RC(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &acc_mem_obj));
+    // RC(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &acc_width_mem_obj));
+    // RC(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &acc_height_mem_obj));
+    RC(clSetKernelArg(kernel, 2, sizeof(int), &acc_width));
+    RC(clSetKernelArg(kernel, 3, sizeof(int), &acc_height));
 
     /* Start clock */
     gettimeofday(&begin, 0);
 
     /* Find local and global size */
     size_t local_size;
-    ret = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL);
+    RC(clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL));
     size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
 
     /* Execute kernel */
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
+    RC(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL));
 
     /* Stop clock */
     gettimeofday(&end, 0);
 
     /* Read from buffer after it's finished */
-    ret = clEnqueueReadBuffer(command_queue, acc_mem_obj, CL_TRUE, 0, sizeof(float) * acc_width * acc_height, acc, 0, NULL, NULL);
+    RC(clEnqueueReadBuffer(command_queue, acc_mem_obj, CL_TRUE, 0, sizeof(float) * acc_width * acc_height, acc, 0, NULL, NULL));
 
     /* Clean up */
-    ret = clFlush(command_queue);
-    ret = clFinish(command_queue);
-    ret = clReleaseKernel(kernel);
-    ret = clReleaseProgram(program);
-    ret = clReleaseMemObject(img_mem_obj);
-    ret = clReleaseMemObject(acc_mem_obj);
-    ret = clReleaseMemObject(acc_width_mem_obj);
-    ret = clReleaseMemObject(acc_height_mem_obj);
-    ret = clReleaseCommandQueue(command_queue);
-    ret = clReleaseContext(context);
+    RC(clFlush(command_queue));
+    RC(clFinish(command_queue));
+    RC(clReleaseKernel(kernel));
+    RC(clReleaseProgram(program));
+    RC(clReleaseMemObject(img_mem_obj));
+    RC(clReleaseMemObject(acc_mem_obj));
+    RC(clReleaseCommandQueue(command_queue));
+    RC(clReleaseContext(context));
 
     return TIME(begin, end);
 }
@@ -123,7 +127,7 @@ int main() {
     // For each radius
     printf("transforming to %d by %d acc...\n", acc_width, acc_height);
     double t = hough_opencl(bin_image, acc, acc_width, acc_height);
-    printf("Execution time: %.2f s\n", t);
+    printf("Execution time (OpenCL): %.6f s\n", t);
     
     /* Normalize and out */
     uint8_t* out_acc = (uint8_t *) malloc(sizeof(uint8_t) * acc_height * acc_width);

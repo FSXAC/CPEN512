@@ -63,7 +63,8 @@ int main() {
 
     // For each radius
     printf("transforming to %d by %d acc...\n", acc_width, acc_height);
-    hough_serial(bin_image, acc, acc_width, acc_height);
+    double t = hough_serial(bin_image, acc, acc_width, acc_height);
+    printf("Execution time (serial): %.6f s\n", t);
     
     /* Normalize and out */
     uint8_t* out_acc = (uint8_t *) malloc(sizeof(uint8_t) * acc_height * acc_width);
