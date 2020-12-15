@@ -60,11 +60,16 @@ void hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     cl_kernel kernel = clCreateKernel(program, KERNEL_FUNC, &ret);
     RETURN_CHECK
 
+    /* Find local and global size */
+    size_t local_size;
+    RC(clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL));
+    size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
+    printf("Local size %zu, global size %zu\n", local_size, global_size);
+
     /* Create memory buffer on device for the required I/O */
     cl_mem img_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, NULL, &ret);
     cl_mem acc_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * acc_width * acc_height, NULL, &ret);
     gettimeofday(&t_ready, 0);
-
 
     /* Copy input data to input buffer */
     RC(clEnqueueWriteBuffer(command_queue, img_mem_obj, CL_TRUE, 0, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, img, 0, NULL, NULL));
@@ -77,11 +82,6 @@ void hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
 
     /* Begin time */
     gettimeofday(&t_begin, 0);
-
-    /* Find local and global size */
-    size_t local_size;
-    RC(clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL));
-    size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
 
     /* Execute kernel */
     RC(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL));

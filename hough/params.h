@@ -12,7 +12,7 @@
 #define IMG_FILE "img/ipad256.jpg"
 #elif IMG_SIZE == 512
 #define MAX_R 724
-#define IMG_FILE "img/testx.jpg"
+#define IMG_FILE "img/ipad512.jpg"
 #elif IMG_SIZE == 1024
 #define MAX_R 1448
 #define IMG_FILE "img/ipad1024.jpg"
