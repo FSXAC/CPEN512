@@ -11,9 +11,9 @@
 
 #include "cl_error_check.h"
 
-double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
+void hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
 {
-    struct timeval begin, end;
+    struct timeval t_ready, t_begin, t_end, t_done;
 
     /* Get platform and device information */
     cl_platform_id platform_id = NULL;
@@ -63,6 +63,8 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     /* Create memory buffer on device for the required I/O */
     cl_mem img_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, NULL, &ret);
     cl_mem acc_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * acc_width * acc_height, NULL, &ret);
+    gettimeofday(&t_ready, 0);
+
 
     /* Copy input data to input buffer */
     RC(clEnqueueWriteBuffer(command_queue, img_mem_obj, CL_TRUE, 0, sizeof(uint8_t) * IMG_SIZE * IMG_SIZE, img, 0, NULL, NULL));
@@ -70,13 +72,11 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     /* Set kernel arguments */
     RC(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &img_mem_obj));
     RC(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &acc_mem_obj));
-    // RC(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &acc_width_mem_obj));
-    // RC(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &acc_height_mem_obj));
     RC(clSetKernelArg(kernel, 2, sizeof(int), &acc_width));
     RC(clSetKernelArg(kernel, 3, sizeof(int), &acc_height));
 
-    /* Start clock */
-    gettimeofday(&begin, 0);
+    /* Begin time */
+    gettimeofday(&t_begin, 0);
 
     /* Find local and global size */
     size_t local_size;
@@ -87,10 +87,11 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     RC(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL));
 
     /* Stop clock */
-    gettimeofday(&end, 0);
+    gettimeofday(&t_end, 0);
 
     /* Read from buffer after it's finished */
     RC(clEnqueueReadBuffer(command_queue, acc_mem_obj, CL_TRUE, 0, sizeof(float) * acc_width * acc_height, acc, 0, NULL, NULL));
+    gettimeofday(&t_done, 0);
 
     /* Clean up */
     RC(clFlush(command_queue));
@@ -102,7 +103,11 @@ double hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     RC(clReleaseCommandQueue(command_queue));
     RC(clReleaseContext(context));
 
-    return TIME(begin, end);
+    printf("Total execution time (including read and write): %.6f s\n", TIME(t_ready, t_done));
+    printf("Breakdown:\n");
+    printf("    Ready -> Begin : %.6f s\n", TIME(t_ready, t_begin));
+    printf("    Begin -> End   : %.6f s\n", TIME(t_begin, t_end));
+    printf("    End   -> Done  : %.6f s\n", TIME(t_end, t_done));
 }
 
 int main() {
@@ -126,8 +131,7 @@ int main() {
 
     // For each radius
     printf("transforming to %d by %d acc...\n", acc_width, acc_height);
-    double t = hough_opencl(bin_image, acc, acc_width, acc_height);
-    printf("Execution time (OpenCL): %.6f s\n", t);
+    hough_opencl(bin_image, acc, acc_width, acc_height);
     
     /* Normalize and out */
     uint8_t* out_acc = (uint8_t *) malloc(sizeof(uint8_t) * acc_height * acc_width);
