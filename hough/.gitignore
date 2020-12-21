@@ -3,3 +3,4 @@ out.*
 out_opencl.*
 out_cuda.*
 *.out
+out_*.jpg
