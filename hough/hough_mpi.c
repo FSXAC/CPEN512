@@ -97,9 +97,6 @@ int main(int argc, char **argv) {
     /* Synchronize */
     MPI_Barrier(MPI_COMM_WORLD);
     
-    /* Stop timer */
-    end = MPI_Wtime();
-
     /* Reduce all the partial results to the same summed accumulator */
     MPI_Reduce(
         partial_acc,
@@ -110,6 +107,9 @@ int main(int argc, char **argv) {
         ROOT_RANK,
         MPI_COMM_WORLD
     );
+
+    /* Stop timer */
+    end = MPI_Wtime();
 
     /* Root cleans up */
     if (rank == ROOT_RANK)
