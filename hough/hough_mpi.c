@@ -23,6 +23,9 @@ int main(int argc, char **argv) {
     int acc_height = 2 * MAX_R;
     float *acc;
 
+    /* Timer */
+    double start, end;
+
     /* Buffer for the work-threads */
     uint8_t *partial_img = malloc(sizeof(uint8_t) * IMG_SIZE * IMG_SIZE);
     float *partial_acc = calloc(acc_width * acc_height, sizeof(float));
@@ -65,6 +68,10 @@ int main(int argc, char **argv) {
     MPI_Scatter(bin_image, partition_size, MPI_UNSIGNED_CHAR, partial_img, partition_size, MPI_UNSIGNED_CHAR, ROOT_RANK, MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
 
+    /* Root starts the clock */
+    if (rank == ROOT_RANK)
+        start = MPI_Wtime();
+
     for (int j = 0; j < partition_row; j++)
     {
         for (int u = 0; u < IMG_SIZE; u++)
@@ -78,7 +85,6 @@ int main(int argc, char **argv) {
             {
                 float theta = MIN_THETA + (D_THETA * col);
                 float rho = v * sin(theta) + u * cos(theta);
-                // int row = (int) rho - MIN_R;
                 int row = floor(rho - MIN_R);
 
                 /* Cast vote */
@@ -90,6 +96,9 @@ int main(int argc, char **argv) {
 
     /* Synchronize */
     MPI_Barrier(MPI_COMM_WORLD);
+    
+    /* Stop timer */
+    end = MPI_Wtime();
 
     /* Reduce all the partial results to the same summed accumulator */
     MPI_Reduce(
@@ -105,6 +114,9 @@ int main(int argc, char **argv) {
     /* Root cleans up */
     if (rank == ROOT_RANK)
     {
+        /* Execution time */
+        printf("Execution time (MPI with n=%d): %.6f s\n", num_procs, end - start);
+
         /* Normalize and out */
         uint8_t* out_acc = (uint8_t *) malloc(sizeof(uint8_t) * acc_height * acc_width);
         printf("normalizing and copying output...\n");
