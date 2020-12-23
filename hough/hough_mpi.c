@@ -80,16 +80,19 @@ int main(int argc, char **argv) {
             /* Offet 'v' for partition row */
             int v = j + (rank * partition_row);
 
-            /* For each theta in accumulator */
-            for (int col = 0; col < acc_width; col++)
-            {
-                float theta = MIN_THETA + (D_THETA * col);
-                float rho = v * sin(theta) + u * cos(theta);
-                int row = floor(rho - MIN_R);
+            if (GETIM(partial_img, u, v) > THRESHOLD) {
 
-                /* Cast vote */
-                if (row >= 0 && row < acc_height)
-                    GETACC(partial_acc, row, col) += GETIM(partial_img, u, v) > THRESHOLD;
+                /* For each theta in accumulator */
+                for (int col = 0; col < acc_width; col++)
+                {
+                    float theta = MIN_THETA + (D_THETA * col);
+                    float rho = v * sin(theta) + u * cos(theta);
+                    int row = floor(rho - MIN_R);
+
+                    /* Cast vote */
+                    if (row >= 0 && row < acc_height)
+                        GETACC(partial_acc, row, col)++;
+                }
             }
         }
     }

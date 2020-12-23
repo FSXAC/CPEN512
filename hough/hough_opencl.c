@@ -75,11 +75,9 @@ void hough_opencl(uint8_t *img, float *acc, int acc_width, int acc_height)
     RC(clSetKernelArg(kernel, 3, sizeof(int), &acc_height));
 
     /* Find local and global size */
-    // size_t local_size = 128;
     size_t local_size;
     RC(clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_size), &local_size, NULL));
     size_t global_size = ceil(acc_width * acc_height / (float) (local_size)) * local_size;
-    // size_t global_size = 2 * local_size;
     printf("Local size %zu, global size %zu\n", local_size, global_size);
 
 

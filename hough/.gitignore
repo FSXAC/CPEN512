@@ -4,3 +4,4 @@ out_opencl.*
 out_cuda.*
 *.out
 out_*.jpg
+visualization/frames/*
